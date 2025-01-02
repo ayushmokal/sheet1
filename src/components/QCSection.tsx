@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface QCSectionProps {
   data: {
@@ -16,30 +17,40 @@ export function QCSection({ data, handleInputChange }: QCSectionProps) {
         <CardTitle className="text-lg">Precision & Sensitivity - QC</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[1, 2, 3, 4, 5].map((num, index) => (
-            <div key={`qc-${num}`} className="grid grid-cols-2 gap-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Level 1 Conc. {num}</label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  value={data.level1[index]}
-                  onChange={(e) => handleInputChange("qc", "level1", e.target.value, index)}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Level 2 Conc. {num}</label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  value={data.level2[index]}
-                  onChange={(e) => handleInputChange("qc", "level2", e.target.value, index)}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Sample #</TableHead>
+              <TableHead>Level 1 Conc.</TableHead>
+              <TableHead>Level 2 Conc.</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[1, 2, 3, 4, 5].map((num, index) => (
+              <TableRow key={`qc-${num}`}>
+                <TableCell className="font-medium">{num}</TableCell>
+                <TableCell>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={data.level1[index]}
+                    onChange={(e) => handleInputChange("qc", "level1", e.target.value, index)}
+                    className="w-full"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={data.level2[index]}
+                    onChange={(e) => handleInputChange("qc", "level2", e.target.value, index)}
+                    className="w-full"
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );
