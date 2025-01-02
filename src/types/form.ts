@@ -4,6 +4,7 @@ export interface FormData {
   technician: string;
   serialNumber: string;
   emailTo?: string;
+  phoneNumber?: string;
   lowerLimitDetection: {
     conc: string[];
     msc: string[];
@@ -25,12 +26,6 @@ export interface FormData {
     manualMotility: string[];
     sqaMorph: string[];
     manualMorph: string[];
-    morphGradeFinal: {
-      tp: string;
-      tn: string;
-      fp: string;
-      fn: string;
-    };
   };
   qc: {
     level1: string[];

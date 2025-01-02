@@ -1,14 +1,8 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormHeader } from "./FormHeader";
-import { LowerLimitDetection } from "./LowerLimitDetection";
-import { PrecisionSection } from "./PrecisionSection";
-import { AccuracySection } from "./AccuracySection";
-import { QCSection } from "./QCSection";
-import { FormActions } from "./FormActions";
+import { WizardForm } from "./wizard/WizardForm";
 import { FormData, GoogleScriptResponse } from "@/types/form";
-import { initialFormData, getTestData } from "@/utils/formUtils";
+import { initialFormData } from "@/utils/formUtils";
 import { APPS_SCRIPT_URL } from "@/config/constants";
 
 export function SQAForm() {
@@ -51,14 +45,6 @@ export function SQAForm() {
         return { ...prev, [section]: sectionData };
       }
       return { ...prev, [section]: value };
-    });
-  };
-
-  const loadTestData = () => {
-    setFormData(getTestData());
-    toast({
-      title: "Test Data Loaded",
-      description: "You can now submit the form to test the Google Sheets integration.",
     });
   };
 
@@ -127,9 +113,7 @@ export function SQAForm() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = async () => {
     if (!spreadsheetId) {
       toast({
         title: "Error",
@@ -268,52 +252,19 @@ export function SQAForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>SQA Precision / Accuracy / Lower Limit Detection Study</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <FormActions 
-            onLoadTestData={loadTestData}
-            onCreateSpreadsheet={createSpreadsheetCopy}
-            onSendEmail={handleSendEmail}
-            isCreatingSpreadsheet={isCreatingSpreadsheet}
-            isSendingEmail={isSendingEmail}
-            isSubmitting={isSubmitting}
-            hasSpreadsheet={!!spreadsheetId}
-            hasSubmittedData={hasSubmittedData}
-            emailTo={formData.emailTo}
-          />
-          <FormHeader 
-            formData={formData} 
-            handleInputChange={handleInputChange} 
-            hasSubmittedData={hasSubmittedData}
-          />
-          <LowerLimitDetection 
-            data={formData.lowerLimitDetection}
-            handleInputChange={handleInputChange}
-          />
-          <PrecisionSection 
-            level={1}
-            data={formData.precisionLevel1}
-            handleInputChange={handleInputChange}
-          />
-          <PrecisionSection 
-            level={2}
-            data={formData.precisionLevel2}
-            handleInputChange={handleInputChange}
-          />
-          <AccuracySection
-            data={formData.accuracy}
-            handleInputChange={handleInputChange}
-          />
-          <QCSection
-            data={formData.qc}
-            handleInputChange={handleInputChange}
-          />
-        </CardContent>
-      </Card>
+    <form onSubmit={(e) => e.preventDefault()} className="space-y-8 max-w-4xl mx-auto p-4">
+      <WizardForm
+        formData={formData}
+        handleInputChange={handleInputChange}
+        onCreateSpreadsheet={createSpreadsheetCopy}
+        onSubmit={handleSubmit}
+        onSendEmail={handleSendEmail}
+        isCreatingSpreadsheet={isCreatingSpreadsheet}
+        isSendingEmail={isSendingEmail}
+        isSubmitting={isSubmitting}
+        hasSpreadsheet={!!spreadsheetId}
+        hasSubmittedData={hasSubmittedData}
+      />
     </form>
   );
 }
