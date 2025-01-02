@@ -9,6 +9,7 @@ import { QCSection } from "../QCSection";
 import { VerificationStep } from "./VerificationStep";
 import { ThankYouStep } from "./ThankYouStep";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface WizardFormProps {
   formData: FormData;
@@ -41,18 +42,13 @@ export function WizardForm({
 }: WizardFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
 
-  const handleSubmitSuccess = () => {
-    setCurrentStep(6); // Move to thank you step
-  };
-
-  const handleSubmitWrapper = async () => {
-    await onSubmit();
-    handleSubmitSuccess();
-  };
-
   return (
     <Card className="p-6">
-      <FormHeader />
+      <FormHeader 
+        formData={formData}
+        handleInputChange={handleInputChange}
+        hasSubmittedData={hasSubmittedData}
+      />
       
       {currentStep < 6 && (
         <FormActions
@@ -77,7 +73,7 @@ export function WizardForm({
 
       {currentStep === 2 && (
         <PrecisionSection
-          data={{ level1: formData.precisionLevel1, level2: formData.precisionLevel2 }}
+          data={formData.precisionLevel1}
           handleInputChange={handleInputChange}
         />
       )}
@@ -100,7 +96,7 @@ export function WizardForm({
         <VerificationStep
           formData={formData}
           handleInputChange={handleInputChange}
-          onSubmit={handleSubmitWrapper}
+          onSubmit={onSubmit}
           onCreateSpreadsheet={onCreateSpreadsheet}
           isSubmitting={isSubmitting}
           isCreatingSpreadsheet={isCreatingSpreadsheet}
