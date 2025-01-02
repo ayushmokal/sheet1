@@ -32,11 +32,15 @@ export function VerificationStep({
 }: VerificationStepProps) {
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
   const handleSubmitClick = async () => {
     try {
       setIsProcessing(true);
       if (!hasSpreadsheet) {
         await onCreateSpreadsheet();
+        // Add a 20-second delay after creating the spreadsheet
+        await delay(20000);
       }
       await onSubmit();
     } finally {
@@ -47,7 +51,7 @@ export function VerificationStep({
   const getButtonText = () => {
     if (isProcessing) {
       if (isCreatingSpreadsheet) {
-        return "Creating Spreadsheet...";
+        return "Creating Spreadsheet (20s)...";
       }
       if (isSubmitting) {
         return "Submitting Data...";
