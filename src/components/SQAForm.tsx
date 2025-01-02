@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { WizardForm } from "./wizard/WizardForm";
 import { FormData, GoogleScriptResponse } from "@/types/form";
-import { initialFormData } from "@/utils/formUtils";
+import { initialFormData, getTestData } from "@/utils/formUtils";
 import { APPS_SCRIPT_URL } from "@/config/constants";
 
 export function SQAForm() {
@@ -251,6 +251,14 @@ export function SQAForm() {
     }
   };
 
+  const handleLoadTestData = () => {
+    setFormData(getTestData());
+    toast({
+      title: "Test Data Loaded",
+      description: "The form has been populated with test data.",
+    });
+  };
+
   return (
     <form onSubmit={(e) => e.preventDefault()} className="space-y-8 max-w-4xl mx-auto p-4">
       <WizardForm
@@ -259,6 +267,7 @@ export function SQAForm() {
         onCreateSpreadsheet={createSpreadsheetCopy}
         onSubmit={handleSubmit}
         onSendEmail={handleSendEmail}
+        onLoadTestData={handleLoadTestData}
         isCreatingSpreadsheet={isCreatingSpreadsheet}
         isSendingEmail={isSendingEmail}
         isSubmitting={isSubmitting}

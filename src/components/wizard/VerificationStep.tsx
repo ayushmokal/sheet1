@@ -12,6 +12,7 @@ interface VerificationStepProps {
   isSendingEmail: boolean;
   hasSpreadsheet: boolean;
   hasSubmittedData: boolean;
+  emailTo?: string;
 }
 
 export function VerificationStep({
@@ -23,6 +24,7 @@ export function VerificationStep({
   isSendingEmail,
   hasSpreadsheet,
   hasSubmittedData,
+  emailTo,
 }: VerificationStepProps) {
   return (
     <div className="space-y-6">
