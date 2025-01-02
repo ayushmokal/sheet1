@@ -46,23 +46,14 @@ export function WizardForm({
           <FormHeader
             formData={formData}
             handleInputChange={handleInputChange}
-            hasSubmittedData={hasSubmittedData}
           />
-          <div className="mt-6 flex gap-2">
+          <div className="mt-6">
             <Button
               type="button"
               variant="outline"
               onClick={onLoadTestData}
             >
               Load Test Data
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCreateSpreadsheet}
-              disabled={isCreatingSpreadsheet}
-            >
-              {isCreatingSpreadsheet ? "Creating..." : hasSpreadsheet ? "Open Spreadsheet" : "Create Spreadsheet"}
             </Button>
           </div>
         </>
@@ -127,7 +118,8 @@ export function WizardForm({
           isSendingEmail={isSendingEmail}
           hasSpreadsheet={hasSpreadsheet}
           hasSubmittedData={hasSubmittedData}
-          emailTo={formData.emailTo}
+          onCreateSpreadsheet={onCreateSpreadsheet}
+          isCreatingSpreadsheet={isCreatingSpreadsheet}
         />
       ),
     },
