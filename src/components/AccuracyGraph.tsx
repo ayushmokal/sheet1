@@ -47,16 +47,16 @@ export function AccuracyGraph({ data }: AccuracyGraphProps) {
   const motilityRSquared = calculateRSquared(motilityData);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 gap-8">
       <Card className="mt-6">
         <CardHeader>
           <CardTitle className="text-lg">SQA Accuracy: Sperm Concentration</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="w-full h-[400px] relative">
+          <div className="w-full h-[500px] relative">
             <ScatterChart
-              width={500}
-              height={300}
+              width={800}
+              height={400}
               margin={{ top: 20, right: 30, bottom: 40, left: 40 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
@@ -102,10 +102,10 @@ export function AccuracyGraph({ data }: AccuracyGraphProps) {
           <CardTitle className="text-lg">SQA Accuracy: Motility</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="w-full h-[400px] relative">
+          <div className="w-full h-[500px] relative">
             <ScatterChart
-              width={500}
-              height={300}
+              width={800}
+              height={400}
               margin={{ top: 20, right: 30, bottom: 40, left: 40 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
