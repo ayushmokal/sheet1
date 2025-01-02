@@ -1,13 +1,14 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { FormData } from "@/types/form";
 import { FormHeader } from "../FormHeader";
+import { FormActions } from "../FormActions";
 import { LowerLimitDetection } from "../LowerLimitDetection";
 import { PrecisionSection } from "../PrecisionSection";
 import { AccuracySection } from "../AccuracySection";
 import { QCSection } from "../QCSection";
 import { VerificationStep } from "./VerificationStep";
-import { FormData } from "@/types/form";
+import { ThankYouStep } from "./ThankYouStep";
+import { useState } from "react";
 
 interface WizardFormProps {
   formData: FormData;
@@ -21,6 +22,7 @@ interface WizardFormProps {
   isSubmitting: boolean;
   hasSpreadsheet: boolean;
   hasSubmittedData: boolean;
+  spreadsheetUrl?: string;
 }
 
 export function WizardForm({
@@ -35,130 +37,101 @@ export function WizardForm({
   isSubmitting,
   hasSpreadsheet,
   hasSubmittedData,
+  spreadsheetUrl
 }: WizardFormProps) {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(1);
 
-  const steps = [
-    {
-      title: "SQA Precision / Accuracy / Lower Limit Detection Study",
-      component: (
-        <>
-          <FormHeader
-            formData={formData}
-            handleInputChange={handleInputChange}
-          />
-          <div className="mt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onLoadTestData}
-            >
-              Load Test Data
-            </Button>
-          </div>
-        </>
-      ),
-    },
-    {
-      title: "Lower Limit Detection",
-      component: (
+  const handleSubmitSuccess = () => {
+    setCurrentStep(6); // Move to thank you step
+  };
+
+  const handleSubmitWrapper = async () => {
+    await onSubmit();
+    handleSubmitSuccess();
+  };
+
+  return (
+    <Card className="p-6">
+      <FormHeader />
+      
+      {currentStep < 6 && (
+        <FormActions
+          onLoadTestData={onLoadTestData}
+          onCreateSpreadsheet={onCreateSpreadsheet}
+          onSendEmail={onSendEmail}
+          isCreatingSpreadsheet={isCreatingSpreadsheet}
+          isSendingEmail={isSendingEmail}
+          isSubmitting={isSubmitting}
+          hasSpreadsheet={hasSpreadsheet}
+          hasSubmittedData={hasSubmittedData}
+          emailTo={formData.emailTo}
+        />
+      )}
+
+      {currentStep === 1 && (
         <LowerLimitDetection
           data={formData.lowerLimitDetection}
           handleInputChange={handleInputChange}
         />
-      ),
-    },
-    {
-      title: "Precision & Sensitivity - Level 1",
-      component: (
+      )}
+
+      {currentStep === 2 && (
         <PrecisionSection
-          level={1}
-          data={formData.precisionLevel1}
+          data={{ level1: formData.precisionLevel1, level2: formData.precisionLevel2 }}
           handleInputChange={handleInputChange}
         />
-      ),
-    },
-    {
-      title: "Precision & Sensitivity - Level 2",
-      component: (
-        <PrecisionSection
-          level={2}
-          data={formData.precisionLevel2}
-          handleInputChange={handleInputChange}
-        />
-      ),
-    },
-    {
-      title: "Accuracy",
-      component: (
+      )}
+
+      {currentStep === 3 && (
         <AccuracySection
           data={formData.accuracy}
           handleInputChange={handleInputChange}
         />
-      ),
-    },
-    {
-      title: "Precision & Sensitivity - QC",
-      component: (
+      )}
+
+      {currentStep === 4 && (
         <QCSection
           data={formData.qc}
           handleInputChange={handleInputChange}
         />
-      ),
-    },
-    {
-      title: "Verification",
-      component: (
+      )}
+
+      {currentStep === 5 && (
         <VerificationStep
           formData={formData}
           handleInputChange={handleInputChange}
-          onSubmit={onSubmit}
-          onSendEmail={onSendEmail}
-          isSubmitting={isSubmitting}
-          isSendingEmail={isSendingEmail}
-          hasSpreadsheet={hasSpreadsheet}
-          hasSubmittedData={hasSubmittedData}
+          onSubmit={handleSubmitWrapper}
           onCreateSpreadsheet={onCreateSpreadsheet}
+          isSubmitting={isSubmitting}
           isCreatingSpreadsheet={isCreatingSpreadsheet}
+          hasSpreadsheet={hasSpreadsheet}
         />
-      ),
-    },
-  ];
+      )}
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
+      {currentStep === 6 && spreadsheetUrl && (
+        <ThankYouStep
+          spreadsheetUrl={spreadsheetUrl}
+          onSendEmail={onSendEmail}
+          isSendingEmail={isSendingEmail}
+        />
+      )}
 
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{steps[currentStep].title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          {steps[currentStep].component}
-          <div className="flex justify-between mt-6">
-            {currentStep > 0 && (
-              <Button type="button" variant="outline" onClick={handleBack}>
-                Back
-              </Button>
-            )}
-            {currentStep < steps.length - 1 && (
-              <Button type="button" onClick={handleNext} className="ml-auto">
-                Next
-              </Button>
-            )}
-          </div>
+      {currentStep < 6 && (
+        <div className="flex justify-between mt-6">
+          <Button
+            onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+            disabled={currentStep === 1}
+          >
+            Previous
+          </Button>
+          <Button
+            onClick={() => setCurrentStep(prev => Math.min(5, prev + 1))}
+            disabled={currentStep === 5}
+          >
+            Next
+          </Button>
         </div>
-      </CardContent>
+      )}
     </Card>
   );
 }

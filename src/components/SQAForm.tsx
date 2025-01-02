@@ -273,6 +273,7 @@ export function SQAForm() {
         isSubmitting={isSubmitting}
         hasSpreadsheet={!!spreadsheetId}
         hasSubmittedData={hasSubmittedData}
+        spreadsheetUrl={spreadsheetUrl}
       />
     </form>
   );
