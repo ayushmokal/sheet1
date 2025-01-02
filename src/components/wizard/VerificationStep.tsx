@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { FormData } from "@/types/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileSpreadsheet, Mail } from "lucide-react";
+import { useState } from "react";
 
 interface VerificationStepProps {
   formData: FormData;
@@ -29,11 +30,31 @@ export function VerificationStep({
   hasSpreadsheet,
   hasSubmittedData,
 }: VerificationStepProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const handleSubmitClick = async () => {
-    if (!hasSpreadsheet) {
-      await onCreateSpreadsheet();
+    try {
+      setIsProcessing(true);
+      if (!hasSpreadsheet) {
+        await onCreateSpreadsheet();
+      }
+      await onSubmit();
+    } finally {
+      setIsProcessing(false);
     }
-    onSubmit();
+  };
+
+  const getButtonText = () => {
+    if (isProcessing) {
+      if (isCreatingSpreadsheet) {
+        return "Creating Spreadsheet...";
+      }
+      if (isSubmitting) {
+        return "Submitting Data...";
+      }
+      return "Processing...";
+    }
+    return "Submit Data";
   };
 
   return (
@@ -82,10 +103,10 @@ export function VerificationStep({
           <Button
             type="button"
             onClick={handleSubmitClick}
-            disabled={isSubmitting || isCreatingSpreadsheet}
+            disabled={isProcessing}
             className="flex-1"
           >
-            {isSubmitting ? "Submitting..." : isCreatingSpreadsheet ? "Creating Spreadsheet..." : "Submit Data"}
+            {getButtonText()}
           </Button>
 
           {hasSubmittedData && formData.emailTo && (
