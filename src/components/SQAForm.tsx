@@ -6,7 +6,6 @@ import { LowerLimitDetection } from "./LowerLimitDetection";
 import { PrecisionSection } from "./PrecisionSection";
 import { AccuracySection } from "./AccuracySection";
 import { QCSection } from "./QCSection";
-import { MorphGradeFinalSection } from "./MorphGradeFinalSection";
 import { FormActions } from "./FormActions";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
@@ -307,10 +306,6 @@ export function SQAForm() {
           />
           <AccuracySection
             data={formData.accuracy}
-            handleInputChange={handleInputChange}
-          />
-          <MorphGradeFinalSection
-            data={formData.accuracy.morphGradeFinal}
             handleInputChange={handleInputChange}
           />
           <QCSection
