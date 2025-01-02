@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface VerificationStepProps {
   formData: FormData;
+  handleInputChange: (section: string, field: string, value: string) => void;
   onSubmit: () => void;
   onSendEmail: () => void;
   isSubmitting: boolean;
@@ -15,6 +16,7 @@ interface VerificationStepProps {
 
 export function VerificationStep({
   formData,
+  handleInputChange,
   onSubmit,
   onSendEmail,
   isSubmitting,

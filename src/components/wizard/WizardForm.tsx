@@ -112,6 +112,7 @@ export function WizardForm({
       component: (
         <VerificationStep
           formData={formData}
+          handleInputChange={handleInputChange}
           onSubmit={onSubmit}
           onSendEmail={onSendEmail}
           isSubmitting={isSubmitting}
