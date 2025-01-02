@@ -40,7 +40,7 @@ export function WizardForm({
 
   const steps = [
     {
-      title: "Basic Information",
+      title: "SQA Precision / Accuracy / Lower Limit Detection Study",
       component: (
         <>
           <FormHeader
