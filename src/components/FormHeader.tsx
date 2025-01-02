@@ -10,7 +10,7 @@ interface FormHeaderProps {
     emailTo?: string;
   };
   handleInputChange: (section: string, field: string, value: string) => void;
-  hasSubmittedData: boolean;
+  hasSubmittedData?: boolean;
 }
 
 export function FormHeader({ formData, handleInputChange, hasSubmittedData }: FormHeaderProps) {
