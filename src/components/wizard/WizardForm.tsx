@@ -15,6 +15,7 @@ interface WizardFormProps {
   onCreateSpreadsheet: () => void;
   onSubmit: () => void;
   onSendEmail: () => void;
+  onLoadTestData: () => void;
   isCreatingSpreadsheet: boolean;
   isSendingEmail: boolean;
   isSubmitting: boolean;
@@ -28,6 +29,7 @@ export function WizardForm({
   onCreateSpreadsheet,
   onSubmit,
   onSendEmail,
+  onLoadTestData,
   isCreatingSpreadsheet,
   isSendingEmail,
   isSubmitting,
@@ -46,13 +48,19 @@ export function WizardForm({
             handleInputChange={handleInputChange}
             hasSubmittedData={hasSubmittedData}
           />
-          <div className="mt-6 flex justify-end">
+          <div className="mt-6 flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onLoadTestData}
+            >
+              Load Test Data
+            </Button>
             <Button
               type="button"
               variant="outline"
               onClick={onCreateSpreadsheet}
               disabled={isCreatingSpreadsheet}
-              className="mr-4"
             >
               {isCreatingSpreadsheet ? "Creating..." : hasSpreadsheet ? "Open Spreadsheet" : "Create Spreadsheet"}
             </Button>
@@ -119,6 +127,7 @@ export function WizardForm({
           isSendingEmail={isSendingEmail}
           hasSpreadsheet={hasSpreadsheet}
           hasSubmittedData={hasSubmittedData}
+          emailTo={formData.emailTo}
         />
       ),
     },
