@@ -237,8 +237,8 @@ function sendEmailWithSpreadsheet(spreadsheet, recipientEmail) {
 }
 
 function createAccuracyScatterPlot(sheet, data) {
-  // Create concentration scatter plot
-  const concentrationChart = sheet.newChart()
+  // Create a new chart
+  const chart = sheet.newChart()
     .setChartType(Charts.ChartType.SCATTER)
     .addRange(sheet.getRange('A48:B52')) // Manual vs SQA concentration data
     .setPosition(5, 8, 0, 0) // Position the chart in the sheet
@@ -249,31 +249,12 @@ function createAccuracyScatterPlot(sheet, data) {
     .setOption('trendlines', [{
       type: 'linear',
       showR2: true,
-      visibleInLegend: true,
-      color: 'blue'
+      visibleInLegend: true
     }])
     .build();
 
-  // Create motility scatter plot
-  const motilityChart = sheet.newChart()
-    .setChartType(Charts.ChartType.SCATTER)
-    .addRange(sheet.getRange('C48:D52')) // Manual vs SQA motility data
-    .setPosition(5, 16, 0, 0) // Position next to the concentration chart
-    .setOption('title', 'SQA Accuracy: Motility')
-    .setOption('hAxis.title', 'Manual Motility, %')
-    .setOption('vAxis.title', 'SQA Motility, %')
-    .setOption('legend', 'none')
-    .setOption('trendlines', [{
-      type: 'linear',
-      showR2: true,
-      visibleInLegend: true,
-      color: 'purple'
-    }])
-    .build();
-
-  // Add both charts to the sheet
-  sheet.insertChart(concentrationChart);
-  sheet.insertChart(motilityChart);
+  // Add the chart to the sheet
+  sheet.insertChart(chart);
   
-  console.log("Created accuracy scatter plots");
+  console.log("Created accuracy scatter plot");
 }
