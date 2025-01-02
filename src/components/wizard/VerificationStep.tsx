@@ -39,8 +39,8 @@ export function VerificationStep({
       setIsProcessing(true);
       if (!hasSpreadsheet) {
         await onCreateSpreadsheet();
-        // Add a 20-second delay after creating the spreadsheet
-        await delay(20000);
+        // Increase delay to 30 seconds after creating the spreadsheet
+        await delay(30000);
       }
       await onSubmit();
     } finally {
@@ -51,7 +51,7 @@ export function VerificationStep({
   const getButtonText = () => {
     if (isProcessing) {
       if (isCreatingSpreadsheet) {
-        return "Creating Spreadsheet (20s)...";
+        return "Creating Spreadsheet (30s)...";
       }
       if (isSubmitting) {
         return "Submitting Data...";
