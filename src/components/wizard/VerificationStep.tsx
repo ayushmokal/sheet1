@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormData } from "@/types/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileSpreadsheet, Mail } from "lucide-react";
+import { FileSpreadsheet, Mail, Send } from "lucide-react";
 import { useState } from "react";
 
 interface VerificationStepProps {
@@ -31,35 +31,6 @@ export function VerificationStep({
   hasSubmittedData,
 }: VerificationStepProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-  const handleSubmitClick = async () => {
-    try {
-      setIsProcessing(true);
-      if (!hasSpreadsheet) {
-        await onCreateSpreadsheet();
-        // Increase delay to 30 seconds after creating the spreadsheet
-        await delay(30000);
-      }
-      await onSubmit();
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const getButtonText = () => {
-    if (isProcessing) {
-      if (isCreatingSpreadsheet) {
-        return "Creating Spreadsheet (30s)...";
-      }
-      if (isSubmitting) {
-        return "Submitting Data...";
-      }
-      return "Processing...";
-    }
-    return "Submit Data";
-  };
 
   return (
     <div className="space-y-6">
@@ -104,14 +75,29 @@ export function VerificationStep({
         </div>
 
         <div className="flex flex-col gap-4">
-          <Button
-            type="button"
-            onClick={handleSubmitClick}
-            disabled={isProcessing}
-            className="flex-1"
-          >
-            {getButtonText()}
-          </Button>
+          {!hasSpreadsheet && (
+            <Button
+              type="button"
+              onClick={onCreateSpreadsheet}
+              disabled={isCreatingSpreadsheet}
+              className="flex items-center gap-2"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              {isCreatingSpreadsheet ? "Creating Spreadsheet..." : "Create Spreadsheet"}
+            </Button>
+          )}
+
+          {hasSpreadsheet && !hasSubmittedData && (
+            <Button
+              type="button"
+              onClick={onSubmit}
+              disabled={isSubmitting}
+              className="flex items-center gap-2"
+            >
+              <Send className="w-4 h-4" />
+              {isSubmitting ? "Submitting Data..." : "Submit Data"}
+            </Button>
+          )}
 
           {hasSubmittedData && formData.emailTo && (
             <Button
