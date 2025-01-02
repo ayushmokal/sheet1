@@ -15,7 +15,6 @@ interface VerificationStepProps {
   isCreatingSpreadsheet: boolean;
   hasSpreadsheet: boolean;
   hasSubmittedData: boolean;
-  emailTo?: string;
 }
 
 export function VerificationStep({
@@ -29,8 +28,14 @@ export function VerificationStep({
   isCreatingSpreadsheet,
   hasSpreadsheet,
   hasSubmittedData,
-  emailTo,
 }: VerificationStepProps) {
+  const handleSubmitClick = async () => {
+    if (!hasSpreadsheet) {
+      await onCreateSpreadsheet();
+    }
+    onSubmit();
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid gap-6">
@@ -76,22 +81,11 @@ export function VerificationStep({
         <div className="flex flex-col gap-4">
           <Button
             type="button"
-            variant="outline"
-            onClick={onCreateSpreadsheet}
-            disabled={isCreatingSpreadsheet}
-            className="flex items-center gap-2"
-          >
-            <FileSpreadsheet className="w-4 h-4" />
-            {isCreatingSpreadsheet ? "Creating..." : hasSpreadsheet ? "Open Spreadsheet" : "Create Spreadsheet"}
-          </Button>
-          
-          <Button
-            type="button"
-            onClick={onSubmit}
-            disabled={!hasSpreadsheet || isSubmitting}
+            onClick={handleSubmitClick}
+            disabled={isSubmitting || isCreatingSpreadsheet}
             className="flex-1"
           >
-            {isSubmitting ? "Submitting..." : "Submit Data"}
+            {isSubmitting ? "Submitting..." : isCreatingSpreadsheet ? "Creating Spreadsheet..." : "Submit Data"}
           </Button>
 
           {hasSubmittedData && formData.emailTo && (
