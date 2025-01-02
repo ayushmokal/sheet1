@@ -53,18 +53,19 @@ export function AccuracyGraph({ data }: AccuracyGraphProps) {
           <CardTitle className="text-lg">SQA Accuracy: Sperm Concentration</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="w-full h-[400px]">
+          <div className="w-full h-[400px] relative">
             <ScatterChart
               width={500}
               height={300}
-              margin={{ top: 20, right: 20, bottom: 40, left: 40 }}
+              margin={{ top: 20, right: 30, bottom: 40, left: 40 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 type="number" 
                 dataKey="x"
                 name="Manual"
-                unit=" M/ml"
+                domain={[0, 'auto']}
+                tickCount={8}
               >
                 <Label value="Manual Sperm Conc., M/ml" offset={-20} position="insideBottom" />
               </XAxis>
@@ -72,7 +73,8 @@ export function AccuracyGraph({ data }: AccuracyGraphProps) {
                 type="number" 
                 dataKey="y"
                 name="SQA"
-                unit=" M/ml"
+                domain={[0, 'auto']}
+                tickCount={8}
               >
                 <Label value="SQA Sperm Conc., M/ml" angle={-90} position="insideLeft" offset={10} />
               </YAxis>
@@ -83,7 +85,9 @@ export function AccuracyGraph({ data }: AccuracyGraphProps) {
               <Scatter
                 name="Concentration"
                 data={concentrationData}
-                fill="#2563eb"
+                fill="#1A73E8"
+                line={{ stroke: '#1A73E8', strokeWidth: 2 }}
+                lineType="fitting"
               />
             </ScatterChart>
             <div className="text-center text-sm text-blue-600 font-medium mt-2">
@@ -98,18 +102,19 @@ export function AccuracyGraph({ data }: AccuracyGraphProps) {
           <CardTitle className="text-lg">SQA Accuracy: Motility</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="w-full h-[400px]">
+          <div className="w-full h-[400px] relative">
             <ScatterChart
               width={500}
               height={300}
-              margin={{ top: 20, right: 20, bottom: 40, left: 40 }}
+              margin={{ top: 20, right: 30, bottom: 40, left: 40 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 type="number" 
                 dataKey="x"
                 name="Manual"
-                unit="%"
+                domain={[0, 100]}
+                tickCount={6}
               >
                 <Label value="Manual Motility, %" offset={-20} position="insideBottom" />
               </XAxis>
@@ -117,7 +122,8 @@ export function AccuracyGraph({ data }: AccuracyGraphProps) {
                 type="number" 
                 dataKey="y"
                 name="SQA"
-                unit="%"
+                domain={[0, 100]}
+                tickCount={6}
               >
                 <Label value="SQA Motility, %" angle={-90} position="insideLeft" offset={10} />
               </YAxis>
@@ -128,7 +134,9 @@ export function AccuracyGraph({ data }: AccuracyGraphProps) {
               <Scatter
                 name="Motility"
                 data={motilityData}
-                fill="#9333ea"
+                fill="#9333EA"
+                line={{ stroke: '#9333EA', strokeWidth: 2 }}
+                lineType="fitting"
               />
             </ScatterChart>
             <div className="text-center text-sm text-purple-600 font-medium mt-2">
