@@ -94,6 +94,7 @@ function handleSubmit(data) {
     writeAccuracyData(newSheet, data);
     writeMorphGradeFinal(newSheet, data);
     writeQCData(newSheet, data);
+    createAccuracyScatterPlot(newSheet, data);
 
     return {
       status: 'success',
@@ -233,4 +234,27 @@ function sendEmailWithSpreadsheet(spreadsheet, recipientEmail) {
     console.error('Error sending email:', error);
     throw new Error('Failed to send email: ' + error.message);
   }
+}
+
+function createAccuracyScatterPlot(sheet, data) {
+  // Create a new chart
+  const chart = sheet.newChart()
+    .setChartType(Charts.ChartType.SCATTER)
+    .addRange(sheet.getRange('A48:B52')) // Manual vs SQA concentration data
+    .setPosition(5, 8, 0, 0) // Position the chart in the sheet
+    .setOption('title', 'SQA Accuracy: Sperm Concentration')
+    .setOption('hAxis.title', 'Manual Sperm Conc., M/ml')
+    .setOption('vAxis.title', 'SQA Sperm Conc., M/ml')
+    .setOption('legend', 'none')
+    .setOption('trendlines', [{
+      type: 'linear',
+      showR2: true,
+      visibleInLegend: true
+    }])
+    .build();
+
+  // Add the chart to the sheet
+  sheet.insertChart(chart);
+  
+  console.log("Created accuracy scatter plot");
 }
