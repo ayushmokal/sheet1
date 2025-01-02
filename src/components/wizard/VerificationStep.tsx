@@ -2,26 +2,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormData } from "@/types/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileSpreadsheet, Mail } from "lucide-react";
 import { useState } from "react";
 
 interface VerificationStepProps {
   formData: FormData;
   handleInputChange: (section: string, field: string, value: string) => void;
   onSubmit: () => void;
+  onSendEmail: () => void;
   onCreateSpreadsheet: () => void;
   isSubmitting: boolean;
+  isSendingEmail: boolean;
   isCreatingSpreadsheet: boolean;
   hasSpreadsheet: boolean;
+  hasSubmittedData: boolean;
 }
 
 export function VerificationStep({
   formData,
   handleInputChange,
   onSubmit,
+  onSendEmail,
   onCreateSpreadsheet,
   isSubmitting,
+  isSendingEmail,
   isCreatingSpreadsheet,
   hasSpreadsheet,
+  hasSubmittedData,
 }: VerificationStepProps) {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -32,7 +39,8 @@ export function VerificationStep({
       setIsProcessing(true);
       if (!hasSpreadsheet) {
         await onCreateSpreadsheet();
-        await delay(30000); // Wait for spreadsheet creation
+        // Increase delay to 30 seconds after creating the spreadsheet
+        await delay(30000);
       }
       await onSubmit();
     } finally {
@@ -95,14 +103,29 @@ export function VerificationStep({
           </div>
         </div>
 
-        <Button
-          type="button"
-          onClick={handleSubmitClick}
-          disabled={isProcessing}
-          className="w-full"
-        >
-          {getButtonText()}
-        </Button>
+        <div className="flex flex-col gap-4">
+          <Button
+            type="button"
+            onClick={handleSubmitClick}
+            disabled={isProcessing}
+            className="flex-1"
+          >
+            {getButtonText()}
+          </Button>
+
+          {hasSubmittedData && formData.emailTo && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onSendEmail}
+              disabled={isSendingEmail}
+              className="flex items-center gap-2"
+            >
+              <Mail className="w-4 h-4" />
+              {isSendingEmail ? "Sending..." : "Send Email"}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
