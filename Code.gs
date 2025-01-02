@@ -54,10 +54,16 @@ function createSpreadsheetCopy() {
     // Make the spreadsheet accessible to anyone with the link
     newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     
+    // Create a second copy
+    const secondFile = templateFile.makeCopy('SQA Data Collection Form (Copy 2)');
+    secondFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
+    
     return {
       status: 'success',
       spreadsheetId: newFile.getId(),
-      spreadsheetUrl: newSpreadsheet.getUrl()
+      spreadsheetUrl: newSpreadsheet.getUrl(),
+      secondSpreadsheetId: secondFile.getId(),
+      secondSpreadsheetUrl: SpreadsheetApp.openById(secondFile.getId()).getUrl()
     };
   } catch (error) {
     console.error('Error in createSpreadsheetCopy:', error);
@@ -94,7 +100,6 @@ function handleSubmit(data) {
     writeAccuracyData(newSheet, data);
     writeMorphGradeFinal(newSheet, data);
     writeQCData(newSheet, data);
-    createAccuracyScatterPlot(newSheet, data);
 
     return {
       status: 'success',
