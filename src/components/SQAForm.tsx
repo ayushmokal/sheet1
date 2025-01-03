@@ -56,35 +56,6 @@ export function SQAForm() {
     let script: HTMLScriptElement | null = null;
 
     try {
-      // First create the spreadsheet
-      const callbackName = `callback_${Date.now()}`;
-      
-      const createSpreadsheetPromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
-        (window as any)[callbackName] = (response: GoogleScriptResponse) => {
-          resolve(response);
-          delete (window as any)[callbackName];
-        };
-
-        script = document.createElement('script');
-        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=createCopy`;
-        
-        script.onerror = () => {
-          reject(new Error('Failed to load the script'));
-          delete (window as any)[callbackName];
-        };
-
-        document.body.appendChild(script);
-      });
-
-      const createResponse = await createSpreadsheetPromise;
-      
-      if (createResponse.status !== 'success' || !createResponse.spreadsheetId) {
-        throw new Error('Failed to create spreadsheet');
-      }
-
-      console.log("Created spreadsheet with ID:", createResponse.spreadsheetId);
-
-      // Now submit the data with the spreadsheet ID
       const submitCallbackName = `callback_${Date.now()}`;
       
       const submitPromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
@@ -94,11 +65,7 @@ export function SQAForm() {
         };
 
         const submitScript = document.createElement('script');
-        const submitData = {
-          ...formData,
-          spreadsheetId: createResponse.spreadsheetId
-        };
-        const encodedData = encodeURIComponent(JSON.stringify(submitData));
+        const encodedData = encodeURIComponent(JSON.stringify(formData));
         submitScript.src = `${APPS_SCRIPT_URL}?callback=${submitCallbackName}&action=submit&data=${encodedData}`;
         
         submitScript.onerror = () => {
