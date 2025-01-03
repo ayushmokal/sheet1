@@ -8,7 +8,6 @@ import { APPS_SCRIPT_URL } from "@/config/constants";
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [spreadsheetId, setSpreadsheetId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleInputChange = (
@@ -52,59 +51,22 @@ export function SQAForm() {
     });
   };
 
-  const createSpreadsheetCopy = async (): Promise<string> => {
-    const callbackName = `callback_${Date.now()}`;
-    
-    return new Promise((resolve, reject) => {
-      (window as any)[callbackName] = (response: GoogleScriptResponse) => {
-        if (response.status === 'success' && response.spreadsheetId) {
-          resolve(response.spreadsheetId);
-        } else {
-          reject(new Error('Failed to create spreadsheet copy'));
-        }
-        delete (window as any)[callbackName];
-      };
-
-      const script = document.createElement('script');
-      script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=createCopy`;
-      
-      script.onerror = () => {
-        reject(new Error('Failed to load the script'));
-        delete (window as any)[callbackName];
-      };
-
-      document.body.appendChild(script);
-      script.remove();
-    });
-  };
-
   const handleSubmit = async () => {
     setIsSubmitting(true);
     let script: HTMLScriptElement | null = null;
 
     try {
-      // First, create a spreadsheet copy if we don't have one
-      if (!spreadsheetId) {
-        const newSpreadsheetId = await createSpreadsheetCopy();
-        setSpreadsheetId(newSpreadsheetId);
-        console.log("Created new spreadsheet with ID:", newSpreadsheetId);
-      }
-
+      // First create the spreadsheet
       const callbackName = `callback_${Date.now()}`;
       
-      const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
+      const createSpreadsheetPromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
         (window as any)[callbackName] = (response: GoogleScriptResponse) => {
           resolve(response);
           delete (window as any)[callbackName];
         };
 
         script = document.createElement('script');
-        const submitData = {
-          ...formData,
-          spreadsheetId: spreadsheetId
-        };
-        const encodedData = encodeURIComponent(JSON.stringify(submitData));
-        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}`;
+        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=createCopy`;
         
         script.onerror = () => {
           reject(new Error('Failed to load the script'));
@@ -114,15 +76,49 @@ export function SQAForm() {
         document.body.appendChild(script);
       });
 
-      const response = await responsePromise;
+      const createResponse = await createSpreadsheetPromise;
+      
+      if (createResponse.status !== 'success' || !createResponse.spreadsheetId) {
+        throw new Error('Failed to create spreadsheet');
+      }
 
-      if (response.status === 'success') {
+      console.log("Created spreadsheet with ID:", createResponse.spreadsheetId);
+
+      // Now submit the data with the spreadsheet ID
+      const submitCallbackName = `callback_${Date.now()}`;
+      
+      const submitPromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
+        (window as any)[submitCallbackName] = (response: GoogleScriptResponse) => {
+          resolve(response);
+          delete (window as any)[submitCallbackName];
+        };
+
+        const submitScript = document.createElement('script');
+        const submitData = {
+          ...formData,
+          spreadsheetId: createResponse.spreadsheetId
+        };
+        const encodedData = encodeURIComponent(JSON.stringify(submitData));
+        submitScript.src = `${APPS_SCRIPT_URL}?callback=${submitCallbackName}&action=submit&data=${encodedData}`;
+        
+        submitScript.onerror = () => {
+          reject(new Error('Failed to load the submit script'));
+          delete (window as any)[submitCallbackName];
+        };
+
+        document.body.appendChild(submitScript);
+        script = submitScript;
+      });
+
+      const submitResponse = await submitPromise;
+
+      if (submitResponse.status === 'success') {
         toast({
           title: "Success!",
           description: "Your data has been submitted successfully.",
         });
       } else {
-        throw new Error(response.message || 'Failed to submit data');
+        throw new Error(submitResponse.message || 'Failed to submit data');
       }
     } catch (error) {
       console.error('Error submitting form:', error);
