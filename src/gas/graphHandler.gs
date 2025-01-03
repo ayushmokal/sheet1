@@ -1,4 +1,4 @@
-function createAccuracyGraphs(sheet) {
+function createAccuracyGraphs(sheet, data) {
   // Create concentration scatter plot
   const concentrationChart = sheet.newChart()
     .setChartType(Charts.ChartType.SCATTER)
@@ -34,15 +34,5 @@ function createAccuracyGraphs(sheet) {
   sheet.insertChart(concentrationChart);
   sheet.insertChart(motilityChart);
   
-  // Add R² value labels and correlation information
-  sheet.getRange('I54').setValue('R² = ');
-  sheet.getRange('I55').setValue('R² = ');
-  
-  // Add correlation coefficient information
-  sheet.getRange('K72').setValue('Concentration');
-  sheet.getRange('K73').setValue('R2 Value from Graph');
-  sheet.getRange('K74').setValue('Correlation coeff. (r)');
-  sheet.getRange('K76').setValue('Motility');
-  sheet.getRange('K77').setValue('R2 Value from Graph');
-  sheet.getRange('K78').setValue('Correlation coeff. (r)');
+  console.log("Created accuracy graphs");
 }

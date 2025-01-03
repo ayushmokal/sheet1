@@ -20,6 +20,17 @@ function doGet(e) {
         }
         result = handleSubmit(data);
         break;
+      case 'sendEmail':
+        if (!data || !data.spreadsheetId || !data.emailTo) {
+          throw new Error('Missing required data for sending email');
+        }
+        const ss = SpreadsheetApp.openById(data.spreadsheetId);
+        const emailResult = sendEmailWithSpreadsheet(ss, data.emailTo);
+        result = {
+          status: emailResult ? 'success' : 'error',
+          message: emailResult ? 'Email sent successfully' : 'Failed to send email'
+        };
+        break;
       default:
         throw new Error('Invalid action');
     }
