@@ -30,10 +30,24 @@ export function WizardForm({
     {
       title: "SQA Precision / Accuracy / Lower Limit Detection Study",
       component: (
-        <FormHeader
-          formData={formData}
-          handleInputChange={handleInputChange}
-        />
+        <>
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex-1">
+              <FormHeader
+                formData={formData}
+                handleInputChange={handleInputChange}
+              />
+            </div>
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={onLoadTestData}
+              className="ml-4"
+            >
+              Load Test Data
+            </Button>
+          </div>
+        </>
       ),
     },
     {
