@@ -1,1 +1,1 @@
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7tlMZowwz1a17Ivlr5zBAdMlwFcQO815Xw1b_Eg4r6fM5RoPA6UkUrZcms5vYBxcIfw/exec';
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZsXA_sxukDOnwiZoqUIp5Hbaf4oOkd9iXw5L1wk8LSJBnvfZlDShGg2sXAOxTcUABTQ/exec';
