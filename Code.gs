@@ -229,12 +229,28 @@ function writeMorphGradeFinal(sheet, data) {
 function recordSubmission(data) {
   const ss = SpreadsheetApp.openById(TEMPLATE_SPREADSHEET_ID);
   const sheet = ss.getSheets()[0];
+  
+  // Test records to be added
+  const testRecords = [
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890']
+  ];
+  
+  // Get the last row
   const lastRow = sheet.getLastRow();
   
-  sheet.getRange(lastRow + 1, 1).setValue(new Date());
-  sheet.getRange(lastRow + 1, 2).setValue(data.facility);
-  sheet.getRange(lastRow + 1, 3).setValue(data.emailTo);
-  sheet.getRange(lastRow + 1, 4).setValue(data.phone);
+  // Add test records
+  sheet.getRange(lastRow + 1, 1, testRecords.length, 4).setValues(testRecords);
+  
+  // Add the new submission after test records
+  const newRow = lastRow + testRecords.length + 1;
+  sheet.getRange(newRow, 1).setValue(new Date());
+  sheet.getRange(newRow, 2).setValue(data.facility);
+  sheet.getRange(newRow, 3).setValue(data.emailTo);
+  sheet.getRange(newRow, 4).setValue(data.phone);
 }
 
 function sendAdminNotification(data, spreadsheetUrl, pdfUrl) {
