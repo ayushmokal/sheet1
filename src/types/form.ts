@@ -1,4 +1,5 @@
 export interface FormData {
+  spreadsheetId?: string;
   facility: string;
   date: string;
   technician: string;

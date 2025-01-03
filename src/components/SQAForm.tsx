@@ -8,6 +8,7 @@ import { APPS_SCRIPT_URL } from "@/config/constants";
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [spreadsheetId, setSpreadsheetId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleInputChange = (
@@ -51,11 +52,44 @@ export function SQAForm() {
     });
   };
 
+  const createSpreadsheetCopy = async (): Promise<string> => {
+    const callbackName = `callback_${Date.now()}`;
+    
+    return new Promise((resolve, reject) => {
+      (window as any)[callbackName] = (response: GoogleScriptResponse) => {
+        if (response.status === 'success' && response.spreadsheetId) {
+          resolve(response.spreadsheetId);
+        } else {
+          reject(new Error('Failed to create spreadsheet copy'));
+        }
+        delete (window as any)[callbackName];
+      };
+
+      const script = document.createElement('script');
+      script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=createCopy`;
+      
+      script.onerror = () => {
+        reject(new Error('Failed to load the script'));
+        delete (window as any)[callbackName];
+      };
+
+      document.body.appendChild(script);
+      script.remove();
+    });
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     let script: HTMLScriptElement | null = null;
 
     try {
+      // First, create a spreadsheet copy if we don't have one
+      if (!spreadsheetId) {
+        const newSpreadsheetId = await createSpreadsheetCopy();
+        setSpreadsheetId(newSpreadsheetId);
+        console.log("Created new spreadsheet with ID:", newSpreadsheetId);
+      }
+
       const callbackName = `callback_${Date.now()}`;
       
       const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
@@ -65,7 +99,11 @@ export function SQAForm() {
         };
 
         script = document.createElement('script');
-        const encodedData = encodeURIComponent(JSON.stringify(formData));
+        const submitData = {
+          ...formData,
+          spreadsheetId: spreadsheetId
+        };
+        const encodedData = encodeURIComponent(JSON.stringify(submitData));
         script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}`;
         
         script.onerror = () => {
