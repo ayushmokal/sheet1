@@ -1,4 +1,4 @@
-function createAccuracyGraphs(sheet, data) {
+function createAccuracyGraphs(sheet) {
   // Create concentration scatter plot
   const concentrationChart = sheet.newChart()
     .setChartType(Charts.ChartType.SCATTER)

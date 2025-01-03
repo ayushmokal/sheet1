@@ -40,4 +40,12 @@ function applySpreadsheetStyling(sheet) {
     range.setHorizontalAlignment('center');
     range.setVerticalAlignment('middle');
   });
+  
+  // Set header formatting
+  const headers = ['A8', 'A20', 'A32', 'A44', 'A67'];
+  headers.forEach(cell => {
+    const header = sheet.getRange(cell);
+    header.setFontWeight('bold');
+    header.setBackground('#F0F0F0');  // Light gray background
+  });
 }
