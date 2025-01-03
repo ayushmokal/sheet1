@@ -232,7 +232,7 @@ function writeMorphGradeFinal(sheet, data) {
 
 function recordSubmission(data) {
   const ss = SpreadsheetApp.openById(TEMPLATE_SPREADSHEET_ID);
-  const sheet = ss.getSheets()[0];
+  const sheet = ss.getSheets()[0];  // Get the first sheet
   
   // Test records to be added
   const testRecords = [
