@@ -34,4 +34,20 @@ function setFormulas(sheet) {
   sheet.getRange('L51').setFormula('=COUNTIF(G48:J52,"FN")');
   sheet.getRange('K54').setFormula('=L48/(L48+L51)');
   sheet.getRange('K56').setFormula('=L49/(L49+L50)');
+  
+  // Set formatting for pass/fail boxes
+  const passBoxes = ['F12:H16', 'F24:H28', 'F36:H40'];
+  passBoxes.forEach(range => {
+    const box = sheet.getRange(range);
+    box.setBackground('#ADD8E6');  // Light blue background
+    box.setBorder(true, true, true, true, true, true);
+  });
+  
+  // Set header formatting
+  const headers = ['A8', 'A20', 'A32', 'A44', 'A67'];
+  headers.forEach(cell => {
+    const header = sheet.getRange(cell);
+    header.setFontWeight('bold');
+    header.setBackground('#F0F0F0');  // Light gray background
+  });
 }
