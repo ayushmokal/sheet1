@@ -103,7 +103,6 @@ export function WizardForm({
         <VerificationStep
           formData={formData}
           onSubmit={onSubmit}
-          onLoadTestData={onLoadTestData}
           isSubmitting={isSubmitting}
         />
       ),
