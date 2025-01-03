@@ -197,8 +197,7 @@ function writeAccuracyData(sheet, data) {
 }
 
 function writeQCData(sheet, data) {
-  // Set header
-  sheet.getRange('A67').setValue('PRECISION & SENSITIVITY - QC');
+  // Skip writing header to A67
   
   for (let i = 0; i < data.qc.level1.length; i++) {
     const row = 86 + i;
