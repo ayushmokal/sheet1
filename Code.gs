@@ -201,8 +201,12 @@ function writeQCData(sheet, data) {
   sheet.getRange('A67').setValue('PRECISION & SENSITIVITY - QC');
   
   for (let i = 0; i < data.qc.level1.length; i++) {
-    sheet.getRange('B' + (71 + i)).setValue(data.qc.level1[i]);
-    sheet.getRange('C' + (71 + i)).setValue(data.qc.level2[i]);
+    const row = 86 + i;
+    // Skip rows 93, 94, and 95
+    if (row !== 93 && row !== 94 && row !== 95) {
+      sheet.getRange('B' + row).setValue(data.qc.level1[i]);
+      sheet.getRange('C' + row).setValue(data.qc.level2[i]);
+    }
   }
   console.log("Wrote QC data");
 }
