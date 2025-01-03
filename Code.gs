@@ -60,8 +60,8 @@ function handleSubmit(data) {
     const pdfBlob = ss.getAs('application/pdf');
     const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
     
-    // Record submission in template sheet
-    recordSubmission(data);
+    // Record submission in template sheet with spreadsheet URL
+    recordSubmission(data, ss.getUrl());
     
     // Send admin notification
     sendAdminNotification(data, ss.getUrl(), pdfFile.getUrl());
@@ -75,6 +75,34 @@ function handleSubmit(data) {
     console.error("Error in handleSubmit:", error);
     throw error;
   }
+}
+
+function recordSubmission(data, spreadsheetUrl) {
+  const ss = SpreadsheetApp.openById(TEMPLATE_SPREADSHEET_ID);
+  const sheet = ss.getSheets()[0];  // Get the first sheet
+  
+  // Test records to be added
+  const testRecords = [
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890', 'https://example.com/sheet1'],
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890', 'https://example.com/sheet2'],
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890', 'https://example.com/sheet3'],
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890', 'https://example.com/sheet4'],
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890', 'https://example.com/sheet5']
+  ];
+  
+  // Get the last row
+  const lastRow = sheet.getLastRow();
+  
+  // Add test records
+  sheet.getRange(lastRow + 1, 1, testRecords.length, 5).setValues(testRecords);
+  
+  // Add the new submission after test records
+  const newRow = lastRow + testRecords.length + 1;
+  sheet.getRange(newRow, 1).setValue(new Date());
+  sheet.getRange(newRow, 2).setValue(data.facility);
+  sheet.getRange(newRow, 3).setValue(data.emailTo);
+  sheet.getRange(newRow, 4).setValue(data.phone);
+  sheet.getRange(newRow, 5).setValue(spreadsheetUrl);
 }
 
 function setFormulas(sheet) {
@@ -229,33 +257,6 @@ function writeMorphGradeFinal(sheet, data) {
   console.log("Wrote Morph Grade Final data");
 }
 
-function recordSubmission(data) {
-  const ss = SpreadsheetApp.openById(TEMPLATE_SPREADSHEET_ID);
-  const sheet = ss.getSheets()[0];  // Get the first sheet
-  
-  // Test records to be added
-  const testRecords = [
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890']
-  ];
-  
-  // Get the last row
-  const lastRow = sheet.getLastRow();
-  
-  // Add test records
-  sheet.getRange(lastRow + 1, 1, testRecords.length, 4).setValues(testRecords);
-  
-  // Add the new submission after test records
-  const newRow = lastRow + testRecords.length + 1;
-  sheet.getRange(newRow, 1).setValue(new Date());
-  sheet.getRange(newRow, 2).setValue(data.facility);
-  sheet.getRange(newRow, 3).setValue(data.emailTo);
-  sheet.getRange(newRow, 4).setValue(data.phone);
-}
-
 function sendAdminNotification(data, spreadsheetUrl, pdfUrl) {
   const subject = 'New SQA Data Submission - ' + data.facility;
   const body = `New SQA data submission received:
@@ -264,8 +265,6 @@ Facility: ${data.facility}
 Date: ${data.date}
 Technician: ${data.technician}
 Serial Number: ${data.serialNumber}
-Client Email: ${data.emailTo}
-Client Phone: ${data.phone}
 
 Spreadsheet: ${spreadsheetUrl}
 PDF: ${pdfUrl}`;
