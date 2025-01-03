@@ -1,22 +1,25 @@
-export const initialFormData = {
+import { FormData } from "@/types/form";
+
+export const initialFormData: FormData = {
   facility: "",
   date: "",
   technician: "",
   serialNumber: "",
   emailTo: "",
+  phone: "",
   lowerLimitDetection: {
-    conc: Array(5).fill(""),
-    msc: Array(5).fill("")
+    conc: Array(10).fill(""),
+    msc: Array(10).fill("")
   },
   precisionLevel1: {
-    conc: Array(5).fill(""),
-    motility: Array(5).fill(""),
-    morph: Array(5).fill("")
+    conc: Array(10).fill(""),
+    motility: Array(10).fill(""),
+    morph: Array(10).fill("")
   },
   precisionLevel2: {
-    conc: Array(5).fill(""),
-    motility: Array(5).fill(""),
-    morph: Array(5).fill("")
+    conc: Array(10).fill(""),
+    motility: Array(10).fill(""),
+    morph: Array(10).fill("")
   },
   accuracy: {
     sqa: Array(5).fill(""),
@@ -33,47 +36,48 @@ export const initialFormData = {
     }
   },
   qc: {
-    level1: Array(5).fill(""),
-    level2: Array(5).fill("")
+    level1: Array(10).fill(""),
+    level2: Array(10).fill("")
   }
 };
 
-export const getTestData = () => ({
+export const getTestData = (): FormData => ({
   facility: "Test Facility",
-  date: "2024-02-14",
+  date: "2024-03-20",
   technician: "John Doe",
-  serialNumber: "TEST123",
+  serialNumber: "12345",
   emailTo: "test@example.com",
+  phone: "123-456-7890",
   lowerLimitDetection: {
-    conc: ["0.1", "0.2", "0.3", "0.4", "0.5"],
-    msc: ["1", "2", "3", "4", "5"]
+    conc: Array(10).fill("1.0"),
+    msc: Array(10).fill("0.5")
   },
   precisionLevel1: {
-    conc: ["1", "2", "3", "4", "5"],
-    motility: ["10", "20", "30", "40", "50"],
-    morph: ["1", "2", "3", "4", "5"]
+    conc: Array(10).fill("2.0"),
+    motility: Array(10).fill("60"),
+    morph: Array(10).fill("14")
   },
   precisionLevel2: {
-    conc: ["6", "7", "8", "9", "10"],
-    motility: ["60", "70", "80", "90", "100"],
-    morph: ["6", "7", "8", "9", "10"]
+    conc: Array(10).fill("20.0"),
+    motility: Array(10).fill("40"),
+    morph: Array(10).fill("10")
   },
   accuracy: {
-    sqa: ["1", "2", "3", "4", "5"],
-    manual: ["1.1", "2.1", "3.1", "4.1", "5.1"],
-    sqaMotility: ["10", "20", "30", "40", "50"],
-    manualMotility: ["11", "21", "31", "41", "51"],
-    sqaMorph: ["1", "2", "3", "4", "5"],
-    manualMorph: ["1.1", "2.1", "3.1", "4.1", "5.1"],
+    sqa: Array(5).fill("15.0"),
+    manual: Array(5).fill("14.0"),
+    sqaMotility: Array(5).fill("55"),
+    manualMotility: Array(5).fill("50"),
+    sqaMorph: Array(5).fill("12"),
+    manualMorph: Array(5).fill("11"),
     morphGradeFinal: {
-      tp: "95",
-      tn: "90",
-      fp: "5",
-      fn: "10"
+      tp: "8",
+      tn: "7",
+      fp: "2",
+      fn: "3"
     }
   },
   qc: {
-    level1: ["1", "2", "3", "4", "5"],
-    level2: ["6", "7", "8", "9", "10"]
+    level1: Array(10).fill("5.0"),
+    level2: Array(10).fill("25.0")
   }
 });

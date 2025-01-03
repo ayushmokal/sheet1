@@ -38,3 +38,11 @@ export interface FormData {
     level2: string[];
   };
 }
+
+export interface GoogleScriptResponse {
+  status: 'success' | 'error';
+  message: string;
+  spreadsheetId?: string;
+  spreadsheetUrl?: string;
+  sheetName?: string;
+}

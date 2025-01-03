@@ -1,32 +1,50 @@
-import { Button } from "@/components/ui/button";
 import { FormData } from "@/types/form";
+import { FormActions } from "../FormActions";
 
-interface VerificationStepProps {
+export interface VerificationStepProps {
   formData: FormData;
+  handleInputChange: (section: string, field: string, value: string, index?: number) => void;
   onSubmit: () => void;
+  onSendEmail: () => void;
+  onCreateSpreadsheet: () => void;
+  onLoadTestData: () => void;
+  isCreatingSpreadsheet: boolean;
+  isSendingEmail: boolean;
   isSubmitting: boolean;
+  hasSpreadsheet: boolean;
+  hasSubmittedData: boolean;
 }
 
 export function VerificationStep({
   formData,
   onSubmit,
+  onSendEmail,
+  onCreateSpreadsheet,
+  onLoadTestData,
+  isCreatingSpreadsheet,
+  isSendingEmail,
   isSubmitting,
+  hasSpreadsheet,
+  hasSubmittedData
 }: VerificationStepProps) {
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h3 className="text-lg font-medium">Verify and Submit</h3>
-        <p className="text-sm text-gray-500">
-          Please review your data before submitting
-        </p>
+      <div className="prose max-w-none">
+        <h3>Verification</h3>
+        <p>Please verify all the data before submitting.</p>
       </div>
-      <Button
-        onClick={onSubmit}
-        disabled={isSubmitting}
-        className="w-full"
-      >
-        {isSubmitting ? "Submitting..." : "Submit Data"}
-      </Button>
+      
+      <FormActions
+        onLoadTestData={onLoadTestData}
+        onCreateSpreadsheet={onCreateSpreadsheet}
+        onSendEmail={onSendEmail}
+        isCreatingSpreadsheet={isCreatingSpreadsheet}
+        isSendingEmail={isSendingEmail}
+        isSubmitting={isSubmitting}
+        hasSpreadsheet={hasSpreadsheet}
+        hasSubmittedData={hasSubmittedData}
+        emailTo={formData.emailTo}
+      />
     </div>
   );
 }
