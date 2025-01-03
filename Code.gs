@@ -1,4 +1,6 @@
-const TEMPLATE_SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
+const TEMPLATE_SPREADSHEET_ID = '1mnPy-8Kzp_ffbU6H-0jpQH0CIf0F4wb0pplK-KQxDbk';
+const ADMIN_EMAIL = 'ayushmokal13@gmail.com';
+const PDF_FOLDER_ID = '1Z9dygHEDb-ZOSzAVqxIFTu7iJ7ADgWdD';
 
 function doGet(e) {
   const params = e.parameter;
@@ -45,6 +47,85 @@ function doGet(e) {
   }
 }
 
+function handleSubmit(data) {
+  console.log("Starting handleSubmit with data:", data);
+  
+  try {
+    // Create new spreadsheet from template
+    const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
+    const newFile = templateFile.makeCopy('SQA Data Collection Form - ' + new Date().toISOString());
+    const ss = SpreadsheetApp.openById(newFile.getId());
+    const sheet = ss.getSheets()[0];
+    
+    // Write data to spreadsheet
+    writeFacilityInfo(sheet, data);
+    writeLowerLimitDetection(sheet, data);
+    writePrecisionData(sheet, data);
+    writeAccuracyData(sheet, data);
+    writeMorphGradeFinal(sheet, data);
+    writeQCData(sheet, data);
+    
+    // Create graphs
+    createAccuracyGraphs(sheet, data);
+    
+    // Generate PDF
+    const pdfBlob = ss.getAs('application/pdf');
+    const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
+    
+    // Record submission and send notification
+    recordSubmission(data, ss.getUrl(), pdfFile.getUrl());
+    sendAdminNotification(data, ss.getUrl(), pdfFile.getUrl());
+    
+    return {
+      status: 'success',
+      message: 'Data submitted successfully'
+    };
+    
+  } catch (error) {
+    console.error("Error in handleSubmit:", error);
+    throw error;
+  }
+}
+
+function createAccuracyGraphs(sheet, data) {
+  // Create concentration scatter plot
+  const concentrationChart = sheet.newChart()
+    .setChartType(Charts.ChartType.SCATTER)
+    .addRange(sheet.getRange('A48:B52'))
+    .setPosition(5, 8, 0, 0)
+    .setOption('title', 'SQA Accuracy: Sperm Concentration')
+    .setOption('hAxis.title', 'Manual Sperm Conc., M/ml')
+    .setOption('vAxis.title', 'SQA Sperm Conc., M/ml')
+    .setOption('legend', 'none')
+    .setOption('trendlines', [{
+      type: 'linear',
+      showR2: true,
+      visibleInLegend: true
+    }])
+    .build();
+  
+  // Create motility scatter plot
+  const motilityChart = sheet.newChart()
+    .setChartType(Charts.ChartType.SCATTER)
+    .addRange(sheet.getRange('C48:D52'))
+    .setPosition(25, 8, 0, 0)
+    .setOption('title', 'SQA Accuracy: Motility')
+    .setOption('hAxis.title', 'Manual Motility, %')
+    .setOption('vAxis.title', 'SQA Motility, %')
+    .setOption('legend', 'none')
+    .setOption('trendlines', [{
+      type: 'linear',
+      showR2: true,
+      visibleInLegend: true
+    }])
+    .build();
+
+  sheet.insertChart(concentrationChart);
+  sheet.insertChart(motilityChart);
+  
+  console.log("Created accuracy graphs");
+}
+
 function createSpreadsheetCopy() {
   try {
     const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
@@ -69,70 +150,6 @@ function createSpreadsheetCopy() {
     console.error('Error in createSpreadsheetCopy:', error);
     throw new Error('Failed to create spreadsheet copy: ' + error.message);
   }
-}
-
-function handleSubmit(data) {
-  console.log("Starting handleSubmit with data:", data);
-  
-  if (!data) {
-    throw new Error('No data provided');
-  }
-
-  const ss = SpreadsheetApp.openById(data.spreadsheetId);
-  console.log("Opened spreadsheet");
-  
-  // Get template sheet
-  const templateSheet = ss.getSheetByName(data.sheetName);
-  if (!templateSheet) {
-    throw new Error('Template sheet not found: ' + data.sheetName);
-  }
-  
-  // Create new sheet from template
-  const newSheetName = generateUniqueSheetName(ss, data);
-  const newSheet = templateSheet.copyTo(ss);
-  newSheet.setName(newSheetName);
-  console.log("Created new sheet:", newSheetName);
-
-  try {
-    writeFacilityInfo(newSheet, data);
-    writeLowerLimitDetection(newSheet, data);
-    writePrecisionData(newSheet, data);
-    writeAccuracyData(newSheet, data);
-    writeMorphGradeFinal(newSheet, data);
-    writeQCData(newSheet, data);
-
-    return {
-      status: 'success',
-      message: 'Data submitted successfully',
-      sheetName: newSheetName
-    };
-  } catch (error) {
-    console.error("Error writing data:", error);
-    try {
-      ss.deleteSheet(newSheet);
-    } catch (e) {
-      console.error("Error deleting sheet after failure:", e);
-    }
-    throw error;
-  }
-}
-
-function generateUniqueSheetName(ss, data) {
-  const date = new Date(data.date);
-  const formattedDate = Utilities.formatDate(date, Session.getScriptTimeZone(), "yyyy-MM-dd");
-  const sanitizedFacility = data.facility.replace(/[^a-zA-Z0-9]/g, '');
-  const cleanSerialNumber = data.serialNumber.trim();
-  
-  const baseSheetName = formattedDate + '_' + cleanSerialNumber + '_' + sanitizedFacility;
-  let sheetName = baseSheetName;
-  let counter = 1;
-  
-  while (ss.getSheetByName(sheetName)) {
-    sheetName = baseSheetName + '_' + counter;
-    counter++;
-  }
-  
-  return sheetName;
 }
 
 function writeFacilityInfo(sheet, data) {
@@ -241,25 +258,27 @@ function sendEmailWithSpreadsheet(spreadsheet, recipientEmail) {
   }
 }
 
-function createAccuracyScatterPlot(sheet, data) {
-  // Create a new chart
-  const chart = sheet.newChart()
-    .setChartType(Charts.ChartType.SCATTER)
-    .addRange(sheet.getRange('A48:B52')) // Manual vs SQA concentration data
-    .setPosition(5, 8, 0, 0) // Position the chart in the sheet
-    .setOption('title', 'SQA Accuracy: Sperm Concentration')
-    .setOption('hAxis.title', 'Manual Sperm Conc., M/ml')
-    .setOption('vAxis.title', 'SQA Sperm Conc., M/ml')
-    .setOption('legend', 'none')
-    .setOption('trendlines', [{
-      type: 'linear',
-      showR2: true,
-      visibleInLegend: true
-    }])
-    .build();
+function recordSubmission(data, spreadsheetUrl, pdfUrl) {
+  // Implementation for recording submission details
+  console.log("Recording submission:", {
+    date: new Date(),
+    facility: data.facility,
+    spreadsheetUrl: spreadsheetUrl,
+    pdfUrl: pdfUrl
+  });
+}
 
-  // Add the chart to the sheet
-  sheet.insertChart(chart);
-  
-  console.log("Created accuracy scatter plot");
+function sendAdminNotification(data, spreadsheetUrl, pdfUrl) {
+  const subject = 'New SQA Data Submission - ' + data.facility;
+  const body = `New SQA data submission received:
+    
+Facility: ${data.facility}
+Date: ${data.date}
+Technician: ${data.technician}
+Serial Number: ${data.serialNumber}
+
+Spreadsheet: ${spreadsheetUrl}
+PDF: ${pdfUrl}`;
+
+  GmailApp.sendEmail(ADMIN_EMAIL, subject, body);
 }
