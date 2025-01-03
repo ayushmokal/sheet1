@@ -152,8 +152,6 @@ function writeAccuracyData(sheet, data) {
 function writeQCData(sheet, data) {
   // Set header
   sheet.getRange('A67').setValue('PRECISION & SENSITIVITY - QC');
-  sheet.getRange('B69:B70').setValue('Level 1 Conc. (M/mL)');
-  sheet.getRange('C69:C70').setValue('Level 2 Conc. (M/mL)');
   
   for (let i = 0; i < data.qc.level1.length; i++) {
     sheet.getRange('B' + (71 + i)).setValue(data.qc.level1[i]);
