@@ -45,6 +45,9 @@ function handleSubmit(data) {
     const sheet = ss.getSheets()[0];
     
     writeAllData(sheet, data);
+    setFormulas(sheet);
+    applySpreadsheetStyling(sheet);
+    createAccuracyGraphs(sheet);
     
     const pdfBlob = ss.getAs('application/pdf');
     const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);

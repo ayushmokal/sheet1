@@ -1,6 +1,7 @@
 function applySpreadsheetStyling(sheet) {
   // Set title formatting
   const title = sheet.getRange('A1');
+  title.setValue('SQA Precision / Accuracy / Lower Limit Detection Study - 5 Replicates');
   title.setFontSize(14);
   title.setFontWeight('bold');
   title.setBackground('#F0F0F0');
@@ -46,6 +47,13 @@ function applySpreadsheetStyling(sheet) {
   headers.forEach(cell => {
     const header = sheet.getRange(cell);
     header.setFontWeight('bold');
-    header.setBackground('#F0F0F0');  // Light gray background
+    header.setBackground('#F0F0F0');
   });
+  
+  // Add descriptions
+  sheet.getRange('A9').setValue('Materials: QwikCheck beads (Negative Control) - Pass Criteria: Conc. = 0.0, MSC = 0.0');
+  sheet.getRange('A21').setValue('Materials: Live Human Semen - Pass Criteria: Conc. < 10%, Motility < 10%, Morphology < 20%');
+  sheet.getRange('A33').setValue('Materials: Live Human Semen - Pass Criteria: Conc. < 10%, Motility < 10%, Morphology < 20%');
+  sheet.getRange('A45').setValue('Materials: Live Human Semen - Manual vs. SQA Comparison');
+  sheet.getRange('A68').setValue('Materials: QwikCheck QC Beads - Pass Criteria: Conc. < 10%');
 }

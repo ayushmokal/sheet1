@@ -37,6 +37,4 @@ function createAccuracyGraphs(sheet) {
   // Add R² value labels
   sheet.getRange('I54').setValue('R² = ');
   sheet.getRange('I55').setValue('R² = ');
-  
-  console.log("Created accuracy graphs");
 }

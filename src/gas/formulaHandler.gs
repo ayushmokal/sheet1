@@ -26,6 +26,6 @@ function setFormulas(sheet) {
   sheet.getRange('L49').setFormula('=COUNTIF(G48:J52,"TN")');
   sheet.getRange('L50').setFormula('=COUNTIF(G48:J52,"FP")');
   sheet.getRange('L51').setFormula('=COUNTIF(G48:J52,"FN")');
-  sheet.getRange('K54').setFormula('=L48/(L48+L51)');
-  sheet.getRange('K56').setFormula('=L49/(L49+L50)');
+  sheet.getRange('K54').setFormula('=L48/(L48+L51)*100');
+  sheet.getRange('K56').setFormula('=L49/(L49+L50)*100');
 }
