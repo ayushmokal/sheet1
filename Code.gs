@@ -39,31 +39,25 @@ function handleSubmit(data) {
   console.log("Starting handleSubmit with data:", data);
   
   try {
-    // Create new spreadsheet from template
     const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
     const newFile = templateFile.makeCopy('SQA Data Collection Form - ' + new Date().toISOString());
     const ss = SpreadsheetApp.openById(newFile.getId());
     const sheet = ss.getSheets()[0];
     
-    // Write data to spreadsheet
     writeFacilityInfo(sheet, data);
     writeLowerLimitDetection(sheet, data);
     writePrecisionData(sheet, data);
     writeAccuracyData(sheet, data);
     writeMorphGradeFinal(sheet, data);
     writeQCData(sheet, data);
-    
-    // Set formulas
     setFormulas(sheet);
+    applySpreadsheetStyling(sheet);
+    createAccuracyGraphs(sheet);
     
-    // Generate PDF
     const pdfBlob = ss.getAs('application/pdf');
     const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
     
-    // Record submission in template sheet
     recordSubmission(data);
-    
-    // Send admin notification
     sendAdminNotification(data, ss.getUrl(), pdfFile.getUrl());
     
     return {
@@ -83,9 +77,6 @@ function setFormulas(sheet) {
   sheet.getRange('C17').setFormula('=AVERAGE(C12:C16)');
   sheet.getRange('B18').setFormula('=IF(B17>0,(STDEV(B12:B16)/B17*100),0)');
   sheet.getRange('C18').setFormula('=IF(C17>0,(STDEV(C12:C16)/C17*100),0)');
-  
-  // Precision Level 1 header
-  sheet.getRange('A20').setValue('PRECISION & SENSITIVITY - LEVEL 1');
   
   // Precision Level 1 formulas
   sheet.getRange('B29').setFormula('=AVERAGE(B24:B28)');
@@ -243,4 +234,99 @@ Spreadsheet: ${spreadsheetUrl}
 PDF: ${pdfUrl}`;
 
   GmailApp.sendEmail(ADMIN_EMAIL, subject, body);
+}
+
+function createAccuracyGraphs(sheet) {
+  // Create concentration scatter plot
+  const concentrationChart = sheet.newChart()
+    .setChartType(Charts.ChartType.SCATTER)
+    .addRange(sheet.getRange('A48:B52'))
+    .setPosition(5, 8, 0, 0)
+    .setOption('title', 'SQA Accuracy: Sperm Concentration')
+    .setOption('hAxis.title', 'Manual Sperm Conc., M/ml')
+    .setOption('vAxis.title', 'SQA Sperm Conc., M/ml')
+    .setOption('legend', 'none')
+    .setOption('trendlines', [{
+      type: 'linear',
+      showR2: true,
+      visibleInLegend: true
+    }])
+    .build();
+  
+  // Create motility scatter plot
+  const motilityChart = sheet.newChart()
+    .setChartType(Charts.ChartType.SCATTER)
+    .addRange(sheet.getRange('C48:D52'))
+    .setPosition(25, 8, 0, 0)
+    .setOption('title', 'SQA Accuracy: Motility')
+    .setOption('hAxis.title', 'Manual Motility, %')
+    .setOption('vAxis.title', 'SQA Motility, %')
+    .setOption('legend', 'none')
+    .setOption('trendlines', [{
+      type: 'linear',
+      showR2: true,
+      visibleInLegend: true
+    }])
+    .build();
+
+  sheet.insertChart(concentrationChart);
+  sheet.insertChart(motilityChart);
+  
+  // Add R² value labels
+  sheet.getRange('I54').setValue('R² = ');
+  sheet.getRange('I55').setValue('R² = ');
+  
+  console.log("Created accuracy graphs");
+}
+
+function applySpreadsheetStyling(sheet) {
+  // Set title formatting
+  const title = sheet.getRange('A1');
+  title.setFontSize(14);
+  title.setFontWeight('bold');
+  title.setBackground('#F0F0F0');
+  
+  // Format header section
+  const headerRange = sheet.getRange('A3:H6');
+  headerRange.setBorder(true, true, true, true, true, true);
+  
+  // Format tables
+  const tables = [
+    'A10:C16',  // Lower Limit Detection
+    'A22:D28',  // Precision Level 1
+    'A34:D40',  // Precision Level 2
+    'A46:F52',  // Accuracy
+    'A69:C74'   // QC
+  ];
+  
+  tables.forEach(range => {
+    const table = sheet.getRange(range);
+    table.setBorder(true, true, true, true, true, true);
+    table.setHorizontalAlignment('center');
+  });
+  
+  // Set pass/fail box styling
+  const passBoxes = [
+    { range: 'F12:H16', text: 'ANALYTICAL SENSITIVITY' },
+    { range: 'F24:H28', text: 'SQA PRECISION' },
+    { range: 'F36:H40', text: 'SQA PRECISION' }
+  ];
+  
+  passBoxes.forEach(box => {
+    const range = sheet.getRange(box.range);
+    range.setBackground('#ADD8E6');
+    range.setBorder(true, true, true, true, true, true);
+    range.merge();
+    range.setValue(box.text);
+    range.setHorizontalAlignment('center');
+    range.setVerticalAlignment('middle');
+  });
+  
+  // Set header formatting
+  const headers = ['A8', 'A20', 'A32', 'A44', 'A67'];
+  headers.forEach(cell => {
+    const header = sheet.getRange(cell);
+    header.setFontWeight('bold');
+    header.setBackground('#F0F0F0');  // Light gray background
+  });
 }
