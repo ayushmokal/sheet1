@@ -4,12 +4,14 @@ import { FormActions } from "../FormActions";
 export interface VerificationStepProps {
   formData: FormData;
   onSubmit: () => void;
+  onLoadTestData: () => void;
   isSubmitting: boolean;
 }
 
 export function VerificationStep({
   formData,
   onSubmit,
+  onLoadTestData,
   isSubmitting
 }: VerificationStepProps) {
   return (
@@ -21,6 +23,7 @@ export function VerificationStep({
       
       <FormActions
         onSubmit={onSubmit}
+        onLoadTestData={onLoadTestData}
         isSubmitting={isSubmitting}
       />
     </div>
