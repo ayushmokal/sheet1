@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { WizardForm } from "./wizard/WizardForm";
 import { FormData, GoogleScriptResponse } from "@/types/form";
-import { initialFormData } from "@/utils/formUtils";
+import { initialFormData, getTestData } from "@/utils/formUtils";
 import { APPS_SCRIPT_URL } from "@/config/constants";
 
 export function SQAForm() {
@@ -40,6 +40,14 @@ export function SQAForm() {
         return { ...prev, [section]: sectionData };
       }
       return { ...prev, [section]: value };
+    });
+  };
+
+  const handleLoadTestData = () => {
+    setFormData(getTestData());
+    toast({
+      title: "Test Data Loaded",
+      description: "Sample data has been loaded into the form.",
     });
   };
 
@@ -99,6 +107,7 @@ export function SQAForm() {
         formData={formData}
         handleInputChange={handleInputChange}
         onSubmit={handleSubmit}
+        onLoadTestData={handleLoadTestData}
         isSubmitting={isSubmitting}
       />
     </form>
