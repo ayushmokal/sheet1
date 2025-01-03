@@ -1,7 +1,6 @@
 const TEMPLATE_SPREADSHEET_ID = '1mnPy-8Kzp_ffbU6H-0jpQH0CIf0F4wb0pplK-KQxDbk';
 const ADMIN_EMAIL = 'ayushmokal13@gmail.com';
 const PDF_FOLDER_ID = '1Z9dygHEDb-ZOSzAVqxIFTu7iJ7ADgWdD';
-const SUBMISSIONS_SHEET_ID = '1mnPy-8Kzp_ffbU6H-0jpQH0CIf0F4wb0pplK-KQxDbk';
 
 function doGet(e) {
   const params = e.parameter;
@@ -12,21 +11,13 @@ function doGet(e) {
   let result;
   
   try {
-    switch (action) {
-      case 'submit':
-        if (!data) {
-          throw new Error('No data provided');
-        }
-        result = handleSubmit(data);
-        break;
-      case 'getSubmissions':
-        result = {
-          status: 'success',
-          data: getSubmissions()
-        };
-        break;
-      default:
-        throw new Error('Invalid action');
+    if (action === 'submit') {
+      if (!data) {
+        throw new Error('No data provided');
+      }
+      result = handleSubmit(data);
+    } else {
+      throw new Error('Invalid action');
     }
     
     return ContentService.createTextOutput(callback + '(' + JSON.stringify(result) + ')')
@@ -42,21 +33,6 @@ function doGet(e) {
     return ContentService.createTextOutput(callback + '(' + JSON.stringify(errorResponse) + ')')
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
-}
-
-function getSubmissions() {
-  const ss = SpreadsheetApp.openById(SUBMISSIONS_SHEET_ID);
-  const sheet = ss.getSheetByName('Submissions');
-  const data = sheet.getDataRange().getValues();
-  const headers = data[0];
-  
-  return data.slice(1).map(row => {
-    const submission = {};
-    headers.forEach((header, index) => {
-      submission[header.toLowerCase()] = row[index];
-    });
-    return submission;
-  });
 }
 
 function handleSubmit(data) {
