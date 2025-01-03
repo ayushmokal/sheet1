@@ -1,118 +1,32 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { FormData } from "@/types/form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileSpreadsheet, Mail, Send } from "lucide-react";
-import { useState } from "react";
 
 interface VerificationStepProps {
   formData: FormData;
-  handleInputChange: (section: string, field: string, value: string) => void;
   onSubmit: () => void;
-  onSendEmail: () => void;
-  onCreateSpreadsheet: () => void;
   isSubmitting: boolean;
-  isSendingEmail: boolean;
-  isCreatingSpreadsheet: boolean;
-  hasSpreadsheet: boolean;
-  hasSubmittedData: boolean;
 }
 
 export function VerificationStep({
   formData,
-  handleInputChange,
   onSubmit,
-  onSendEmail,
-  onCreateSpreadsheet,
   isSubmitting,
-  isSendingEmail,
-  isCreatingSpreadsheet,
-  hasSpreadsheet,
-  hasSubmittedData,
 }: VerificationStepProps) {
-  const [isProcessing, setIsProcessing] = useState(false);
-
   return (
     <div className="space-y-6">
-      <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Basic Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="grid grid-cols-2 gap-4">
-              <dt className="font-medium">Facility Name:</dt>
-              <dd>{formData.facility}</dd>
-              <dt className="font-medium">Date:</dt>
-              <dd>{formData.date}</dd>
-              <dt className="font-medium">Technician Name:</dt>
-              <dd>{formData.technician}</dd>
-              <dt className="font-medium">Serial Number:</dt>
-              <dd>{formData.serialNumber}</dd>
-            </dl>
-          </CardContent>
-        </Card>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Email Address</label>
-            <Input
-              type="email"
-              value={formData.emailTo || ''}
-              onChange={(e) => handleInputChange("emailTo", "", e.target.value)}
-              placeholder="Enter email address"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Phone Number</label>
-            <Input
-              type="tel"
-              value={formData.phoneNumber || ''}
-              onChange={(e) => handleInputChange("phoneNumber", "", e.target.value)}
-              placeholder="Enter phone number"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          {!hasSpreadsheet && (
-            <Button
-              type="button"
-              onClick={onCreateSpreadsheet}
-              disabled={isCreatingSpreadsheet}
-              className="flex items-center gap-2"
-            >
-              <FileSpreadsheet className="w-4 h-4" />
-              {isCreatingSpreadsheet ? "Creating Spreadsheet..." : "Create Spreadsheet"}
-            </Button>
-          )}
-
-          {hasSpreadsheet && !hasSubmittedData && (
-            <Button
-              type="button"
-              onClick={onSubmit}
-              disabled={isSubmitting}
-              className="flex items-center gap-2"
-            >
-              <Send className="w-4 h-4" />
-              {isSubmitting ? "Submitting Data..." : "Submit Data"}
-            </Button>
-          )}
-
-          {hasSubmittedData && formData.emailTo && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onSendEmail}
-              disabled={isSendingEmail}
-              className="flex items-center gap-2"
-            >
-              <Mail className="w-4 h-4" />
-              {isSendingEmail ? "Sending..." : "Send Email"}
-            </Button>
-          )}
-        </div>
+      <div className="text-center">
+        <h3 className="text-lg font-medium">Verify and Submit</h3>
+        <p className="text-sm text-gray-500">
+          Please review your data before submitting
+        </p>
       </div>
+      <Button
+        onClick={onSubmit}
+        disabled={isSubmitting}
+        className="w-full"
+      >
+        {isSubmitting ? "Submitting..." : "Submit Data"}
+      </Button>
     </div>
   );
 }

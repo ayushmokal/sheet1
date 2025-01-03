@@ -11,25 +11,13 @@ function doGet(e) {
   let result;
   
   try {
-    switch (action) {
-      case 'createCopy':
-        result = createSpreadsheetCopy();
-        break;
-      case 'submit':
-        if (!data || !data.spreadsheetId) {
-          throw new Error('No data or spreadsheetId provided');
-        }
-        result = handleSubmit(data);
-        break;
-      case 'sendEmail':
-        if (!data || !data.spreadsheetId || !data.emailTo) {
-          throw new Error('Missing required data for sending email');
-        }
-        const ss = SpreadsheetApp.openById(data.spreadsheetId);
-        result = sendEmailWithSpreadsheet(ss, data.emailTo);
-        break;
-      default:
-        throw new Error('Invalid action');
+    if (action === 'submit') {
+      if (!data) {
+        throw new Error('No data provided');
+      }
+      result = handleSubmit(data);
+    } else {
+      throw new Error('Invalid action');
     }
     
     return ContentService.createTextOutput(callback + '(' + JSON.stringify(result) + ')')
@@ -72,8 +60,10 @@ function handleSubmit(data) {
     const pdfBlob = ss.getAs('application/pdf');
     const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
     
-    // Record submission and send notification
-    recordSubmission(data, ss.getUrl(), pdfFile.getUrl());
+    // Record submission in template sheet
+    recordSubmission(data);
+    
+    // Send admin notification
     sendAdminNotification(data, ss.getUrl(), pdfFile.getUrl());
     
     return {
@@ -84,71 +74,6 @@ function handleSubmit(data) {
   } catch (error) {
     console.error("Error in handleSubmit:", error);
     throw error;
-  }
-}
-
-function createAccuracyGraphs(sheet, data) {
-  // Create concentration scatter plot
-  const concentrationChart = sheet.newChart()
-    .setChartType(Charts.ChartType.SCATTER)
-    .addRange(sheet.getRange('A48:B52'))
-    .setPosition(5, 8, 0, 0)
-    .setOption('title', 'SQA Accuracy: Sperm Concentration')
-    .setOption('hAxis.title', 'Manual Sperm Conc., M/ml')
-    .setOption('vAxis.title', 'SQA Sperm Conc., M/ml')
-    .setOption('legend', 'none')
-    .setOption('trendlines', [{
-      type: 'linear',
-      showR2: true,
-      visibleInLegend: true
-    }])
-    .build();
-  
-  // Create motility scatter plot
-  const motilityChart = sheet.newChart()
-    .setChartType(Charts.ChartType.SCATTER)
-    .addRange(sheet.getRange('C48:D52'))
-    .setPosition(25, 8, 0, 0)
-    .setOption('title', 'SQA Accuracy: Motility')
-    .setOption('hAxis.title', 'Manual Motility, %')
-    .setOption('vAxis.title', 'SQA Motility, %')
-    .setOption('legend', 'none')
-    .setOption('trendlines', [{
-      type: 'linear',
-      showR2: true,
-      visibleInLegend: true
-    }])
-    .build();
-
-  sheet.insertChart(concentrationChart);
-  sheet.insertChart(motilityChart);
-  
-  console.log("Created accuracy graphs");
-}
-
-function createSpreadsheetCopy() {
-  try {
-    const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
-    const newFile = templateFile.makeCopy('SQA Data Collection Form (Copy)');
-    const newSpreadsheet = SpreadsheetApp.openById(newFile.getId());
-    
-    // Make the spreadsheet accessible to anyone with the link
-    newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
-    
-    // Create a second copy
-    const secondFile = templateFile.makeCopy('SQA Data Collection Form (Copy 2)');
-    secondFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
-    
-    return {
-      status: 'success',
-      spreadsheetId: newFile.getId(),
-      spreadsheetUrl: newSpreadsheet.getUrl(),
-      secondSpreadsheetId: secondFile.getId(),
-      secondSpreadsheetUrl: SpreadsheetApp.openById(secondFile.getId()).getUrl()
-    };
-  } catch (error) {
-    console.error('Error in createSpreadsheetCopy:', error);
-    throw new Error('Failed to create spreadsheet copy: ' + error.message);
   }
 }
 
@@ -225,47 +150,54 @@ function writeQCData(sheet, data) {
   console.log("Wrote QC data");
 }
 
-function sendEmailWithSpreadsheet(spreadsheet, recipientEmail) {
-  try {
-    // Get the spreadsheet URL
-    const spreadsheetUrl = spreadsheet.getUrl();
-    
-    const emailSubject = 'SQA Data Submission';
-    const emailBody = 'Please find attached the SQA data submission spreadsheet.\n\n' +
-                     'You can access the spreadsheet directly here: ' + spreadsheetUrl + '\n\n' +
-                     'This is an automated message.';
-    
-    // Get the spreadsheet file from Drive
-    const spreadsheetFile = DriveApp.getFileById(spreadsheet.getId());
-    
-    GmailApp.sendEmail(
-      recipientEmail,
-      emailSubject,
-      emailBody,
-      {
-        attachments: [spreadsheetFile],
-        name: 'SQA Data System'
-      }
-    );
-    
-    return {
-      status: 'success',
-      message: 'Email sent successfully'
-    };
-  } catch (error) {
-    console.error('Error sending email:', error);
-    throw new Error('Failed to send email: ' + error.message);
-  }
+function createAccuracyGraphs(sheet, data) {
+  // Create concentration scatter plot
+  const concentrationChart = sheet.newChart()
+    .setChartType(Charts.ChartType.SCATTER)
+    .addRange(sheet.getRange('A48:B52'))
+    .setPosition(5, 8, 0, 0)
+    .setOption('title', 'SQA Accuracy: Sperm Concentration')
+    .setOption('hAxis.title', 'Manual Sperm Conc., M/ml')
+    .setOption('vAxis.title', 'SQA Sperm Conc., M/ml')
+    .setOption('legend', 'none')
+    .setOption('trendlines', [{
+      type: 'linear',
+      showR2: true,
+      visibleInLegend: true
+    }])
+    .build();
+  
+  // Create motility scatter plot
+  const motilityChart = sheet.newChart()
+    .setChartType(Charts.ChartType.SCATTER)
+    .addRange(sheet.getRange('C48:D52'))
+    .setPosition(25, 8, 0, 0)
+    .setOption('title', 'SQA Accuracy: Motility')
+    .setOption('hAxis.title', 'Manual Motility, %')
+    .setOption('vAxis.title', 'SQA Motility, %')
+    .setOption('legend', 'none')
+    .setOption('trendlines', [{
+      type: 'linear',
+      showR2: true,
+      visibleInLegend: true
+    }])
+    .build();
+
+  sheet.insertChart(concentrationChart);
+  sheet.insertChart(motilityChart);
+  
+  console.log("Created accuracy graphs");
 }
 
-function recordSubmission(data, spreadsheetUrl, pdfUrl) {
-  // Implementation for recording submission details
-  console.log("Recording submission:", {
-    date: new Date(),
-    facility: data.facility,
-    spreadsheetUrl: spreadsheetUrl,
-    pdfUrl: pdfUrl
-  });
+function recordSubmission(data) {
+  const ss = SpreadsheetApp.openById(TEMPLATE_SPREADSHEET_ID);
+  const sheet = ss.getSheets()[0];
+  const lastRow = sheet.getLastRow();
+  
+  sheet.getRange(lastRow + 1, 1).setValue(new Date());
+  sheet.getRange(lastRow + 1, 2).setValue(data.facility);
+  sheet.getRange(lastRow + 1, 3).setValue(data.emailTo);
+  sheet.getRange(lastRow + 1, 4).setValue(data.phone);
 }
 
 function sendAdminNotification(data, spreadsheetUrl, pdfUrl) {
@@ -276,6 +208,8 @@ Facility: ${data.facility}
 Date: ${data.date}
 Technician: ${data.technician}
 Serial Number: ${data.serialNumber}
+Client Email: ${data.emailTo}
+Client Phone: ${data.phone}
 
 Spreadsheet: ${spreadsheetUrl}
 PDF: ${pdfUrl}`;

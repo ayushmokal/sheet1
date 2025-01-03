@@ -3,8 +3,8 @@ export interface FormData {
   date: string;
   technician: string;
   serialNumber: string;
-  emailTo?: string;
-  phoneNumber?: string;
+  emailTo: string;
+  phone: string;
   lowerLimitDetection: {
     conc: string[];
     msc: string[];
@@ -26,17 +26,15 @@ export interface FormData {
     manualMotility: string[];
     sqaMorph: string[];
     manualMorph: string[];
+    morphGradeFinal: {
+      tp: string;
+      tn: string;
+      fp: string;
+      fn: string;
+    };
   };
   qc: {
     level1: string[];
     level2: string[];
   };
-}
-
-export interface GoogleScriptResponse {
-  status: 'success' | 'error';
-  message?: string;
-  spreadsheetId?: string;
-  spreadsheetUrl?: string;
-  sheetName?: string;
 }

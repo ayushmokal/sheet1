@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 
 interface FormHeaderProps {
   formData: {
@@ -7,66 +7,66 @@ interface FormHeaderProps {
     date: string;
     technician: string;
     serialNumber: string;
-    emailTo?: string;
+    emailTo: string;
+    phone: string;
   };
   handleInputChange: (section: string, field: string, value: string) => void;
-  hasSubmittedData?: boolean;
 }
 
-export function FormHeader({ formData, handleInputChange, hasSubmittedData }: FormHeaderProps) {
+export function FormHeader({ formData, handleInputChange }: FormHeaderProps) {
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Facility Name</label>
-            <Input
-              type="text"
-              value={formData.facility}
-              onChange={(e) => handleInputChange("facility", "", e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Date</label>
-            <Input
-              type="date"
-              value={formData.date}
-              onChange={(e) => handleInputChange("date", "", e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Technician Name</label>
-            <Input
-              type="text"
-              value={formData.technician}
-              onChange={(e) => handleInputChange("technician", "", e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Serial Number</label>
-            <Input
-              type="text"
-              value={formData.serialNumber}
-              onChange={(e) => handleInputChange("serialNumber", "", e.target.value)}
-              required
-            />
-          </div>
-          {hasSubmittedData && (
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Email Results To</label>
-              <Input
-                type="email"
-                value={formData.emailTo || ''}
-                onChange={(e) => handleInputChange("emailTo", "", e.target.value)}
-                placeholder="Enter email address"
-              />
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="facility">Facility Name</Label>
+        <Input
+          id="facility"
+          value={formData.facility}
+          onChange={(e) => handleInputChange("facility", "", e.target.value)}
+        />
+      </div>
+      <div>
+        <Label htmlFor="date">Date</Label>
+        <Input
+          id="date"
+          type="date"
+          value={formData.date}
+          onChange={(e) => handleInputChange("date", "", e.target.value)}
+        />
+      </div>
+      <div>
+        <Label htmlFor="technician">Technician Name</Label>
+        <Input
+          id="technician"
+          value={formData.technician}
+          onChange={(e) => handleInputChange("technician", "", e.target.value)}
+        />
+      </div>
+      <div>
+        <Label htmlFor="serialNumber">Serial Number</Label>
+        <Input
+          id="serialNumber"
+          value={formData.serialNumber}
+          onChange={(e) => handleInputChange("serialNumber", "", e.target.value)}
+        />
+      </div>
+      <div>
+        <Label htmlFor="emailTo">Contact Email (for records only)</Label>
+        <Input
+          id="emailTo"
+          type="email"
+          value={formData.emailTo}
+          onChange={(e) => handleInputChange("emailTo", "", e.target.value)}
+        />
+      </div>
+      <div>
+        <Label htmlFor="phone">Contact Phone (for records only)</Label>
+        <Input
+          id="phone"
+          type="tel"
+          value={formData.phone}
+          onChange={(e) => handleInputChange("phone", "", e.target.value)}
+        />
+      </div>
+    </div>
   );
 }
