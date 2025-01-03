@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { WizardForm } from "./wizard/WizardForm";
-import { FormData } from "@/types/form";
+import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData } from "@/utils/formUtils";
 import { APPS_SCRIPT_URL } from "@/config/constants";
 
@@ -50,8 +50,8 @@ export function SQAForm() {
     try {
       const callbackName = `callback_${Date.now()}`;
       
-      const responsePromise = new Promise((resolve, reject) => {
-        (window as any)[callbackName] = (response: any) => {
+      const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
+        (window as any)[callbackName] = (response: GoogleScriptResponse) => {
           resolve(response);
           delete (window as any)[callbackName];
         };
