@@ -13,6 +13,7 @@ interface WizardFormProps {
   formData: FormData;
   handleInputChange: (section: string, field: string, value: string, index?: number) => void;
   onSubmit: () => void;
+  onLoadTestData: () => void;
   isSubmitting: boolean;
 }
 
@@ -20,6 +21,7 @@ export function WizardForm({
   formData,
   handleInputChange,
   onSubmit,
+  onLoadTestData,
   isSubmitting,
 }: WizardFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -87,6 +89,7 @@ export function WizardForm({
         <VerificationStep
           formData={formData}
           onSubmit={onSubmit}
+          onLoadTestData={onLoadTestData}
           isSubmitting={isSubmitting}
         />
       ),
