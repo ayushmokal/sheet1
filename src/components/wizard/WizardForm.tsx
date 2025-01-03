@@ -120,6 +120,7 @@ export function WizardForm({
           hasSubmittedData={hasSubmittedData}
           onCreateSpreadsheet={onCreateSpreadsheet}
           isCreatingSpreadsheet={isCreatingSpreadsheet}
+          onLoadTestData={onLoadTestData}
         />
       ),
     },
