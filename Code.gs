@@ -99,8 +99,8 @@ function setFormulas(sheet) {
   sheet.getRange('L49').setFormula('=COUNTIF(G48:J52,"TN")');
   sheet.getRange('L50').setFormula('=COUNTIF(G48:J52,"FP")');
   sheet.getRange('L51').setFormula('=COUNTIF(G48:J52,"FN")');
-  sheet.getRange('K54').setFormula('=L48/(L48+L51)');
-  sheet.getRange('K56').setFormula('=L49/(L49+L50)');
+  sheet.getRange('K54').setFormula('=L48/(L48+L51)*100');
+  sheet.getRange('K56').setFormula('=L49/(L49+L50)*100');
 }
 
 function writeFacilityInfo(sheet, data) {
@@ -114,6 +114,7 @@ function writeFacilityInfo(sheet, data) {
 function writeLowerLimitDetection(sheet, data) {
   // Set header
   sheet.getRange('A8').setValue('LOWER LIMIT DETECTION');
+  sheet.getRange('A9').setValue('Materials: QwikCheck beads (Negative Control) - Pass Criteria: Conc. = 0.0, MSC = 0.0');
   sheet.getRange('B10:B11').setValue('Conc. Value');
   sheet.getRange('C10:C11').setValue('MSC Value');
   
@@ -128,6 +129,7 @@ function writeLowerLimitDetection(sheet, data) {
 function writePrecisionData(sheet, data) {
   // Level 1
   sheet.getRange('A20').setValue('PRECISION & SENSITIVITY - LEVEL 1');
+  sheet.getRange('A21').setValue('Materials: Live Human Semen - Pass Criteria: Conc. < 10%, Motility < 10%, Morphology < 20%');
   sheet.getRange('B22:B23').setValue('Conc. (M/mL)');
   sheet.getRange('C22:C23').setValue('Motility (%)');
   sheet.getRange('D22:D23').setValue('Morph. (%)');
@@ -140,6 +142,7 @@ function writePrecisionData(sheet, data) {
   
   // Level 2
   sheet.getRange('A32').setValue('PRECISION & SENSITIVITY - LEVEL 2');
+  sheet.getRange('A33').setValue('Materials: Live Human Semen - Pass Criteria: Conc. < 10%, Motility < 10%, Morphology < 20%');
   sheet.getRange('B34:B35').setValue('Conc. (M/mL)');
   sheet.getRange('C34:C35').setValue('Motility (%)');
   sheet.getRange('D34:D35').setValue('Morph. (%)');
@@ -153,8 +156,9 @@ function writePrecisionData(sheet, data) {
 }
 
 function writeAccuracyData(sheet, data) {
-  // Set header
+  // Set headers
   sheet.getRange('A44').setValue('ACCURACY (OPTIONAL)');
+  sheet.getRange('A45').setValue('Materials: Live Human Semen - Manual vs. SQA Comparison');
   sheet.getRange('A46:B46').setValue('CONC., M/ml');
   sheet.getRange('C46:D46').setValue('MOTILITY, %');
   sheet.getRange('E46:F46').setValue('MORPHOLOGY, %');
@@ -166,6 +170,7 @@ function writeAccuracyData(sheet, data) {
   sheet.getRange('E47').setValue('SQA');
   sheet.getRange('F47').setValue('Manual');
   
+  // Write data
   for (let i = 0; i < data.accuracy.sqa.length; i++) {
     const row = 48 + i;
     sheet.getRange(`A${row}`).setValue(data.accuracy.sqa[i]);
@@ -181,6 +186,7 @@ function writeAccuracyData(sheet, data) {
 function writeQCData(sheet, data) {
   // Set header
   sheet.getRange('A67').setValue('PRECISION & SENSITIVITY - QC');
+  sheet.getRange('A68').setValue('Materials: QwikCheck QC Beads - Pass Criteria: Conc. < 10%');
   
   for (let i = 0; i < data.qc.level1.length; i++) {
     sheet.getRange('B' + (71 + i)).setValue(data.qc.level1[i]);
@@ -276,12 +282,19 @@ function createAccuracyGraphs(sheet) {
   sheet.getRange('I54').setValue('R² = ');
   sheet.getRange('I55').setValue('R² = ');
   
-  console.log("Created accuracy graphs");
+  // Add correlation information
+  sheet.getRange('K72').setValue('Concentration');
+  sheet.getRange('K73').setValue('R2 Value from Graph');
+  sheet.getRange('K74').setValue('Correlation coeff. (r)');
+  sheet.getRange('K76').setValue('Motility');
+  sheet.getRange('K77').setValue('R2 Value from Graph');
+  sheet.getRange('K78').setValue('Correlation coeff. (r)');
 }
 
 function applySpreadsheetStyling(sheet) {
-  // Set title formatting
+  // Set title
   const title = sheet.getRange('A1');
+  title.setValue('SQA Precision / Accuracy / Lower Limit Detection Study - 5 Replicates');
   title.setFontSize(14);
   title.setFontWeight('bold');
   title.setBackground('#F0F0F0');
@@ -292,9 +305,9 @@ function applySpreadsheetStyling(sheet) {
   
   // Format tables
   const tables = [
-    'A10:C16',  // Lower Limit Detection
-    'A22:D28',  // Precision Level 1
-    'A34:D40',  // Precision Level 2
+    'A10:C18',  // Lower Limit Detection
+    'A22:D30',  // Precision Level 1
+    'A34:D42',  // Precision Level 2
     'A46:F52',  // Accuracy
     'A69:C74'   // QC
   ];
@@ -322,11 +335,21 @@ function applySpreadsheetStyling(sheet) {
     range.setVerticalAlignment('middle');
   });
   
-  // Set header formatting
-  const headers = ['A8', 'A20', 'A32', 'A44', 'A67'];
-  headers.forEach(cell => {
-    const header = sheet.getRange(cell);
-    header.setFontWeight('bold');
-    header.setBackground('#F0F0F0');  // Light gray background
-  });
+  // Add accuracy outcome section
+  sheet.getRange('A58:K58').merge();
+  sheet.getRange('A58').setValue('SQA ACCURACY OUTCOME');
+  sheet.getRange('A58').setHorizontalAlignment('center');
+  sheet.getRange('A58').setBackground('#F0F0F0');
+  sheet.getRange('A58').setFontWeight('bold');
+  
+  // Add accuracy criteria section
+  const criteriaRange = sheet.getRange('A76:B78');
+  criteriaRange.setBorder(true, true, true, true, true, true);
+  sheet.getRange('A76').setValue('Accuracy - Recommended Pass Critieria');
+  sheet.getRange('A77').setValue('Concentration:');
+  sheet.getRange('B77').setValue('Hit within 15% of the manufacturer\'s clinical claims = Correlation: >0.765, Sensitivity: >76.5%, Specificity: >72.3%');
+  sheet.getRange('A78').setValue('Motility:');
+  sheet.getRange('B78').setValue('Hit within 15% of manufacturer\'s clinical claims = Correlation: >0.680, Sensitivity: >72.3%, Specificity: >68.0%');
+  sheet.getRange('A79').setValue('Morphology:');
+  sheet.getRange('B79').setValue('Hit within 15% of manufacturer\'s clinical claims = Sensitivity: >68.0%, Specificity: >76.5%');
 }
