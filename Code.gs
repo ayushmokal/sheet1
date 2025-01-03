@@ -84,9 +84,6 @@ function setFormulas(sheet) {
   sheet.getRange('B18').setFormula('=IF(B17>0,(STDEV(B12:B16)/B17*100),0)');
   sheet.getRange('C18').setFormula('=IF(C17>0,(STDEV(C12:C16)/C17*100),0)');
   
-  // Precision Level 1 header
-  sheet.getRange('A20').setValue('PRECISION & SENSITIVITY - LEVEL 1');
-  
   // Precision Level 1 formulas
   sheet.getRange('B29').setFormula('=AVERAGE(B24:B28)');
   sheet.getRange('C29').setFormula('=AVERAGE(C24:C28)');
@@ -128,8 +125,12 @@ function writeLowerLimitDetection(sheet, data) {
   
   // Write data
   for (let i = 0; i < data.lowerLimitDetection.conc.length; i++) {
-    sheet.getRange('B' + (12 + i)).setValue(data.lowerLimitDetection.conc[i]);
-    sheet.getRange('C' + (12 + i)).setValue(data.lowerLimitDetection.msc[i]);
+    const row = 12 + i;
+    // Only write to cells B12-B16 and C12-C16
+    if (row <= 16) {
+      sheet.getRange('B' + row).setValue(data.lowerLimitDetection.conc[i]);
+      sheet.getRange('C' + row).setValue(data.lowerLimitDetection.msc[i]);
+    }
   }
   console.log("Wrote Lower Limit Detection data");
 }
@@ -142,9 +143,13 @@ function writePrecisionData(sheet, data) {
   sheet.getRange('D22:D23').setValue('Morph. (%)');
   
   for (let i = 0; i < data.precisionLevel1.conc.length; i++) {
-    sheet.getRange('B' + (24 + i)).setValue(data.precisionLevel1.conc[i]);
-    sheet.getRange('C' + (24 + i)).setValue(data.precisionLevel1.motility[i]);
-    sheet.getRange('D' + (24 + i)).setValue(data.precisionLevel1.morph[i]);
+    const row = 24 + i;
+    // Only write to cells B24-B28, C24-C28, D24-D28
+    if (row <= 28) {
+      sheet.getRange('B' + row).setValue(data.precisionLevel1.conc[i]);
+      sheet.getRange('C' + row).setValue(data.precisionLevel1.motility[i]);
+      sheet.getRange('D' + row).setValue(data.precisionLevel1.morph[i]);
+    }
   }
   
   // Level 2
@@ -154,9 +159,13 @@ function writePrecisionData(sheet, data) {
   sheet.getRange('D34:D35').setValue('Morph. (%)');
   
   for (let i = 0; i < data.precisionLevel2.conc.length; i++) {
-    sheet.getRange('B' + (36 + i)).setValue(data.precisionLevel2.conc[i]);
-    sheet.getRange('C' + (36 + i)).setValue(data.precisionLevel2.motility[i]);
-    sheet.getRange('D' + (36 + i)).setValue(data.precisionLevel2.morph[i]);
+    const row = 36 + i;
+    // Only write to cells B36-B40, C36-C40, D36-D40
+    if (row <= 40) {
+      sheet.getRange('B' + row).setValue(data.precisionLevel2.conc[i]);
+      sheet.getRange('C' + row).setValue(data.precisionLevel2.motility[i]);
+      sheet.getRange('D' + row).setValue(data.precisionLevel2.morph[i]);
+    }
   }
   console.log("Wrote Precision data");
 }
