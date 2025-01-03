@@ -21,11 +21,13 @@ function setFormulas(sheet) {
   sheet.getRange('C42').setFormula('=IF(C41>0,(STDEV(C36:C40)/C41*100),0)');
   sheet.getRange('D42').setFormula('=IF(D41>0,(STDEV(D36:D40)/D41*100),0)');
   
-  // Accuracy formulas
+  // Accuracy formulas for Morph Grade Final
   sheet.getRange('L48').setFormula('=COUNTIF(G48:J52,"TP")');
   sheet.getRange('L49').setFormula('=COUNTIF(G48:J52,"TN")');
   sheet.getRange('L50').setFormula('=COUNTIF(G48:J52,"FP")');
   sheet.getRange('L51').setFormula('=COUNTIF(G48:J52,"FN")');
+  
+  // Sensitivity and Specificity formulas
   sheet.getRange('K54').setFormula('=L48/(L48+L51)*100');
   sheet.getRange('K56').setFormula('=L49/(L49+L50)*100');
 }

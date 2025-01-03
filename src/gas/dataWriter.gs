@@ -8,6 +8,7 @@ function writeAllData(sheet, data) {
 }
 
 function writeFacilityInfo(sheet, data) {
+  sheet.getRange('A1').setValue('SQA Precision / Accuracy / Lower Limit Detection Study - 5 Replicates');
   sheet.getRange('B3:H3').setValue(data.facility);
   sheet.getRange('B4:H4').setValue(data.date);
   sheet.getRange('B5:H5').setValue(data.technician);
@@ -16,6 +17,7 @@ function writeFacilityInfo(sheet, data) {
 
 function writeLowerLimitDetection(sheet, data) {
   sheet.getRange('A8').setValue('LOWER LIMIT DETECTION');
+  sheet.getRange('A9').setValue('Materials: QwikCheck beads (Negative Control) - Pass Criteria: Conc. = 0.0, MSC = 0.0');
   sheet.getRange('A10').setValue('Sample #');
   sheet.getRange('B10:B11').setValue('Conc. Value');
   sheet.getRange('C10:C11').setValue('MSC Value');
@@ -30,12 +32,14 @@ function writeLowerLimitDetection(sheet, data) {
 function writePrecisionData(sheet, data) {
   // Level 1
   sheet.getRange('A20').setValue('PRECISION & SENSITIVITY - LEVEL 1');
+  sheet.getRange('A21').setValue('Materials: Live Human Semen - Pass Criteria: Conc. < 10%, Motility < 10%, Morphology < 20%');
   sheet.getRange('A22').setValue('Sample #');
   sheet.getRange('B22:B23').setValue('Conc. (M/mL)');
   sheet.getRange('C22:C23').setValue('Motility (%)');
   sheet.getRange('D22:D23').setValue('Morph. (%)');
   
   for (let i = 0; i < data.precisionLevel1.conc.length; i++) {
+    if (i < 2) continue; // Skip first two rows
     sheet.getRange(`A${24 + i}`).setValue(i + 1);
     sheet.getRange(`B${24 + i}`).setValue(data.precisionLevel1.conc[i]);
     sheet.getRange(`C${24 + i}`).setValue(data.precisionLevel1.motility[i]);
@@ -44,12 +48,14 @@ function writePrecisionData(sheet, data) {
 
   // Level 2
   sheet.getRange('A32').setValue('PRECISION & SENSITIVITY - LEVEL 2');
+  sheet.getRange('A33').setValue('Materials: Live Human Semen - Pass Criteria: Conc. < 10%, Motility < 10%, Morphology < 20%');
   sheet.getRange('A34').setValue('Sample #');
   sheet.getRange('B34:B35').setValue('Conc. (M/mL)');
   sheet.getRange('C34:C35').setValue('Motility (%)');
   sheet.getRange('D34:D35').setValue('Morph. (%)');
   
   for (let i = 0; i < data.precisionLevel2.conc.length; i++) {
+    if (i < 2) continue; // Skip first two rows
     sheet.getRange(`A${36 + i}`).setValue(i + 1);
     sheet.getRange(`B${36 + i}`).setValue(data.precisionLevel2.conc[i]);
     sheet.getRange(`C${36 + i}`).setValue(data.precisionLevel2.motility[i]);
@@ -59,6 +65,7 @@ function writePrecisionData(sheet, data) {
 
 function writeAccuracyData(sheet, data) {
   sheet.getRange('A44').setValue('ACCURACY (OPTIONAL)');
+  sheet.getRange('A45').setValue('Materials: Live Human Semen - Manual vs. SQA Comparison');
   sheet.getRange('A46:B46').setValue('CONC., M/ml');
   sheet.getRange('C46:D46').setValue('MOTILITY, %');
   sheet.getRange('E46:F46').setValue('MORPHOLOGY, %');
@@ -94,6 +101,7 @@ function writeMorphGradeFinal(sheet, data) {
 
 function writeQCData(sheet, data) {
   sheet.getRange('A67').setValue('PRECISION & SENSITIVITY - QC');
+  sheet.getRange('A68').setValue('Materials: QwikCheck QC Beads - Pass Criteria: Conc. < 10%');
   sheet.getRange('A69').setValue('Sample #');
   sheet.getRange('B69').setValue('Level 1 Conc. (M/mL)');
   sheet.getRange('C69').setValue('Level 2 Conc. (M/mL)');
