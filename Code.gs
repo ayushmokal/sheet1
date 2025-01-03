@@ -197,7 +197,8 @@ function writeAccuracyData(sheet, data) {
 }
 
 function writeQCData(sheet, data) {
-  // Skip writing header to A67
+  // Set header
+  sheet.getRange('A67').setValue('PRECISION & SENSITIVITY - QC');
   
   for (let i = 0; i < data.qc.level1.length; i++) {
     const row = 86 + i;
@@ -231,7 +232,7 @@ function writeMorphGradeFinal(sheet, data) {
 
 function recordSubmission(data) {
   const ss = SpreadsheetApp.openById(TEMPLATE_SPREADSHEET_ID);
-  const sheet = ss.getSheets()[0];  // Get the first sheet
+  const sheet = ss.getSheets()[0];
   
   // Test records to be added
   const testRecords = [
