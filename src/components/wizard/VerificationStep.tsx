@@ -3,29 +3,14 @@ import { FormActions } from "../FormActions";
 
 export interface VerificationStepProps {
   formData: FormData;
-  handleInputChange: (section: string, field: string, value: string, index?: number) => void;
   onSubmit: () => void;
-  onSendEmail: () => void;
-  onCreateSpreadsheet: () => void;
-  onLoadTestData: () => void;
-  isCreatingSpreadsheet: boolean;
-  isSendingEmail: boolean;
   isSubmitting: boolean;
-  hasSpreadsheet: boolean;
-  hasSubmittedData: boolean;
 }
 
 export function VerificationStep({
   formData,
   onSubmit,
-  onSendEmail,
-  onCreateSpreadsheet,
-  onLoadTestData,
-  isCreatingSpreadsheet,
-  isSendingEmail,
-  isSubmitting,
-  hasSpreadsheet,
-  hasSubmittedData
+  isSubmitting
 }: VerificationStepProps) {
   return (
     <div className="space-y-6">
@@ -35,15 +20,8 @@ export function VerificationStep({
       </div>
       
       <FormActions
-        onLoadTestData={onLoadTestData}
-        onCreateSpreadsheet={onCreateSpreadsheet}
-        onSendEmail={onSendEmail}
-        isCreatingSpreadsheet={isCreatingSpreadsheet}
-        isSendingEmail={isSendingEmail}
+        onSubmit={onSubmit}
         isSubmitting={isSubmitting}
-        hasSpreadsheet={hasSpreadsheet}
-        hasSubmittedData={hasSubmittedData}
-        emailTo={formData.emailTo}
       />
     </div>
   );

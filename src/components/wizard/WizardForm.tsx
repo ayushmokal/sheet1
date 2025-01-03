@@ -12,29 +12,15 @@ import { FormData } from "@/types/form";
 interface WizardFormProps {
   formData: FormData;
   handleInputChange: (section: string, field: string, value: string, index?: number) => void;
-  onCreateSpreadsheet: () => void;
   onSubmit: () => void;
-  onSendEmail: () => void;
-  onLoadTestData: () => void;
-  isCreatingSpreadsheet: boolean;
-  isSendingEmail: boolean;
   isSubmitting: boolean;
-  hasSpreadsheet: boolean;
-  hasSubmittedData: boolean;
 }
 
 export function WizardForm({
   formData,
   handleInputChange,
-  onCreateSpreadsheet,
   onSubmit,
-  onSendEmail,
-  onLoadTestData,
-  isCreatingSpreadsheet,
-  isSendingEmail,
   isSubmitting,
-  hasSpreadsheet,
-  hasSubmittedData,
 }: WizardFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -42,21 +28,10 @@ export function WizardForm({
     {
       title: "SQA Precision / Accuracy / Lower Limit Detection Study",
       component: (
-        <>
-          <FormHeader
-            formData={formData}
-            handleInputChange={handleInputChange}
-          />
-          <div className="mt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onLoadTestData}
-            >
-              Load Test Data
-            </Button>
-          </div>
-        </>
+        <FormHeader
+          formData={formData}
+          handleInputChange={handleInputChange}
+        />
       ),
     },
     {
@@ -111,16 +86,8 @@ export function WizardForm({
       component: (
         <VerificationStep
           formData={formData}
-          handleInputChange={handleInputChange}
           onSubmit={onSubmit}
-          onSendEmail={onSendEmail}
           isSubmitting={isSubmitting}
-          isSendingEmail={isSendingEmail}
-          hasSpreadsheet={hasSpreadsheet}
-          hasSubmittedData={hasSubmittedData}
-          onCreateSpreadsheet={onCreateSpreadsheet}
-          isCreatingSpreadsheet={isCreatingSpreadsheet}
-          onLoadTestData={onLoadTestData}
         />
       ),
     },
