@@ -19,6 +19,64 @@ function createSpreadsheetCopy() {
   }
 }
 
+function handleSubmit(data) {
+  console.log("Starting handleSubmit with data:", data);
+  
+  try {
+    // Format the date for the filename
+    const dateObj = new Date(data.date);
+    const formattedDate = Utilities.formatDate(dateObj, Session.getScriptTimeZone(), "yyyy-MM-dd");
+    
+    // Sanitize facility name and serial number
+    const sanitizedFacility = data.facility.replace(/[^a-zA-Z0-9]/g, '');
+    const cleanSerialNumber = data.serialNumber.trim().replace(/[^a-zA-Z0-9]/g, '');
+    
+    // Create new filename format
+    const fileName = \`\${formattedDate}-\${cleanSerialNumber}-\${sanitizedFacility}\`;
+    
+    // Create new spreadsheet from template
+    const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
+    const newFile = templateFile.makeCopy(fileName);
+    const ss = SpreadsheetApp.openById(newFile.getId());
+    const sheet = ss.getSheets()[0];
+    
+    // Write data to spreadsheet
+    writeFacilityInfo(sheet, data);
+    writeLowerLimitDetection(sheet, data);
+    writePrecisionData(sheet, data);
+    writeAccuracyData(sheet, data);
+    writeMorphGradeFinal(sheet, data);
+    writeQCData(sheet, data);
+    
+    // Set formulas
+    setFormulas(sheet);
+    
+    // Ensure all calculations are completed
+    SpreadsheetApp.flush();
+    
+    // Generate PDF
+    const pdfBlob = ss.getAs(MimeType.PDF).setName(\`\${fileName}.pdf\`);
+    const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
+    
+    // Make the new spreadsheet accessible to anyone with the link
+    newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
+    
+    // Send admin notification
+    sendAdminNotification(data, ss.getUrl(), pdfFile.getUrl());
+    
+    return {
+      status: 'success',
+      message: 'Data submitted successfully',
+      spreadsheetUrl: ss.getUrl(),
+      pdfUrl: pdfFile.getUrl()
+    };
+    
+  } catch (error) {
+    console.error("Error in handleSubmit:", error);
+    throw error;
+  }
+}
+
 function writeFacilityInfo(sheet, data) {
   sheet.getRange('B3:H3').setValue(data.facility);
   sheet.getRange('B4:H4').setValue(data.date);
@@ -28,41 +86,97 @@ function writeFacilityInfo(sheet, data) {
 }
 
 function writeLowerLimitDetection(sheet, data) {
+  // Set header
+  sheet.getRange('A8').setValue('LOWER LIMIT DETECTION');
+  sheet.getRange('B10:B11').setValue('Conc. Value');
+  sheet.getRange('C10:C11').setValue('MSC Value');
+  
+  // Write data
   for (let i = 0; i < data.lowerLimitDetection.conc.length; i++) {
-    sheet.getRange('B' + (12 + i)).setValue(data.lowerLimitDetection.conc[i]);
-    sheet.getRange('C' + (12 + i)).setValue(data.lowerLimitDetection.msc[i]);
+    const row = 12 + i;
+    // Only write to cells B12-B16 and C12-C16
+    if (row <= 16) {
+      sheet.getRange('B' + row).setValue(data.lowerLimitDetection.conc[i]);
+      sheet.getRange('C' + row).setValue(data.lowerLimitDetection.msc[i]);
+    }
   }
   console.log("Wrote Lower Limit Detection data");
 }
 
 function writePrecisionData(sheet, data) {
   // Level 1
+  sheet.getRange('A20').setValue('PRECISION & SENSITIVITY - LEVEL 1');
+  sheet.getRange('B22:B23').setValue('Conc. (M/mL)');
+  sheet.getRange('C22:C23').setValue('Motility (%)');
+  sheet.getRange('D22:D23').setValue('Morph. (%)');
+  
   for (let i = 0; i < data.precisionLevel1.conc.length; i++) {
-    sheet.getRange('B' + (24 + i)).setValue(data.precisionLevel1.conc[i]);
-    sheet.getRange('C' + (24 + i)).setValue(data.precisionLevel1.motility[i]);
-    sheet.getRange('D' + (24 + i)).setValue(data.precisionLevel1.morph[i]);
+    const row = 24 + i;
+    // Only write to cells B24-B28, C24-C28, D24-D28
+    if (row <= 28) {
+      sheet.getRange('B' + row).setValue(data.precisionLevel1.conc[i]);
+      sheet.getRange('C' + row).setValue(data.precisionLevel1.motility[i]);
+      sheet.getRange('D' + row).setValue(data.precisionLevel1.morph[i]);
+    }
   }
-  console.log("Wrote Precision Level 1 data");
-
+  
   // Level 2
+  sheet.getRange('A32').setValue('PRECISION & SENSITIVITY - LEVEL 2');
+  sheet.getRange('B34:B35').setValue('Conc. (M/mL)');
+  sheet.getRange('C34:C35').setValue('Motility (%)');
+  sheet.getRange('D34:D35').setValue('Morph. (%)');
+  
   for (let i = 0; i < data.precisionLevel2.conc.length; i++) {
-    sheet.getRange('B' + (36 + i)).setValue(data.precisionLevel2.conc[i]);
-    sheet.getRange('C' + (36 + i)).setValue(data.precisionLevel2.motility[i]);
-    sheet.getRange('D' + (36 + i)).setValue(data.precisionLevel2.morph[i]);
+    const row = 36 + i;
+    // Only write to cells B36-B40, C36-C40, D36-D40
+    if (row <= 40) {
+      sheet.getRange('B' + row).setValue(data.precisionLevel2.conc[i]);
+      sheet.getRange('C' + row).setValue(data.precisionLevel2.motility[i]);
+      sheet.getRange('D' + row).setValue(data.precisionLevel2.morph[i]);
+    }
   }
-  console.log("Wrote Precision Level 2 data");
+  console.log("Wrote Precision data");
 }
 
 function writeAccuracyData(sheet, data) {
+  // Set header
+  sheet.getRange('A44').setValue('ACCURACY (OPTIONAL)');
+  sheet.getRange('A46:B46').setValue('CONC., M/ml');
+  sheet.getRange('C46:D46').setValue('MOTILITY, %');
+  sheet.getRange('E46:F46').setValue('MORPHOLOGY, %');
+  
+  sheet.getRange('A47').setValue('SQA');
+  sheet.getRange('B47').setValue('Manual');
+  sheet.getRange('C47').setValue('SQA');
+  sheet.getRange('D47').setValue('Manual');
+  sheet.getRange('E47').setValue('SQA');
+  sheet.getRange('F47').setValue('Manual');
+  
   for (let i = 0; i < data.accuracy.sqa.length; i++) {
-    sheet.getRange('A' + (48 + i)).setValue(data.accuracy.sqa[i]);
-    sheet.getRange('B' + (48 + i)).setValue(data.accuracy.manual[i]);
-    sheet.getRange('C' + (48 + i)).setValue(data.accuracy.sqaMotility[i]);
-    sheet.getRange('D' + (48 + i)).setValue(data.accuracy.manualMotility[i]);
-    sheet.getRange('E' + (48 + i)).setValue(data.accuracy.sqaMorph[i]);
-    sheet.getRange('F' + (48 + i)).setValue(data.accuracy.manualMorph[i]);
+    const row = 48 + i;
+    sheet.getRange(\`A\${row}\`).setValue(data.accuracy.sqa[i]);
+    sheet.getRange(\`B\${row}\`).setValue(data.accuracy.manual[i]);
+    sheet.getRange(\`C\${row}\`).setValue(data.accuracy.sqaMotility[i]);
+    sheet.getRange(\`D\${row}\`).setValue(data.accuracy.manualMotility[i]);
+    sheet.getRange(\`E\${row}\`).setValue(data.accuracy.sqaMorph[i]);
+    sheet.getRange(\`F\${row}\`).setValue(data.accuracy.manualMorph[i]);
   }
   console.log("Wrote Accuracy data");
+}
+
+function writeQCData(sheet, data) {
+  // Set header
+  sheet.getRange('A67').setValue('PRECISION & SENSITIVITY - QC');
+  
+  for (let i = 0; i < data.qc.level1.length; i++) {
+    const row = 86 + i;
+    // Skip rows 93, 94, and 95
+    if (row !== 93 && row !== 94 && row !== 95) {
+      sheet.getRange('B' + row).setValue(data.qc.level1[i]);
+      sheet.getRange('C' + row).setValue(data.qc.level2[i]);
+    }
+  }
+  console.log("Wrote QC data");
 }
 
 function writeMorphGradeFinal(sheet, data) {
@@ -84,11 +198,35 @@ function writeMorphGradeFinal(sheet, data) {
   console.log("Wrote Morph Grade Final data");
 }
 
-function writeQCData(sheet, data) {
-  for (let i = 0; i < data.qc.level1.length; i++) {
-    sheet.getRange('B' + (71 + i)).setValue(data.qc.level1[i]);
-    sheet.getRange('C' + (71 + i)).setValue(data.qc.level2[i]);
-  }
-  console.log("Wrote QC data");
+function setFormulas(sheet) {
+  // Lower Limit Detection formulas
+  sheet.getRange('B17').setFormula('=AVERAGE(B12:B16)');
+  sheet.getRange('C17').setFormula('=AVERAGE(C12:C16)');
+  sheet.getRange('B18').setFormula('=IF(B17>0,(STDEV(B12:B16)/B17*100),0)');
+  sheet.getRange('C18').setFormula('=IF(C17>0,(STDEV(C12:C16)/C17*100),0)');
+  
+  // Precision Level 1 formulas
+  sheet.getRange('B29').setFormula('=AVERAGE(B24:B28)');
+  sheet.getRange('C29').setFormula('=AVERAGE(C24:C28)');
+  sheet.getRange('D29').setFormula('=AVERAGE(D24:D28)');
+  sheet.getRange('B30').setFormula('=IF(B29>0,(STDEV(B24:B28)/B29*100),0)');
+  sheet.getRange('C30').setFormula('=IF(C29>0,(STDEV(C24:C28)/C29*100),0)');
+  sheet.getRange('D30').setFormula('=IF(D29>0,(STDEV(D24:D28)/D29*100),0)');
+  
+  // Precision Level 2 formulas
+  sheet.getRange('B41').setFormula('=AVERAGE(B36:B40)');
+  sheet.getRange('C41').setFormula('=AVERAGE(C36:C40)');
+  sheet.getRange('D41').setFormula('=AVERAGE(D36:D40)');
+  sheet.getRange('B42').setFormula('=IF(B41>0,(STDEV(B36:B40)/B41*100),0)');
+  sheet.getRange('C42').setFormula('=IF(C41>0,(STDEV(C36:C40)/C41*100),0)');
+  sheet.getRange('D42').setFormula('=IF(D41>0,(STDEV(D36:D40)/D41*100),0)');
+  
+  // Accuracy formulas
+  sheet.getRange('L48').setFormula('=COUNTIF(G48:J52,"TP")');
+  sheet.getRange('L49').setFormula('=COUNTIF(G48:J52,"TN")');
+  sheet.getRange('L50').setFormula('=COUNTIF(G48:J52,"FP")');
+  sheet.getRange('L51').setFormula('=COUNTIF(G48:J52,"FN")');
+  sheet.getRange('K54').setFormula('=L48/(L48+L51)');
+  sheet.getRange('K56').setFormula('=L49/(L49+L50)');
 }
 `;

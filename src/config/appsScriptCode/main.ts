@@ -1,5 +1,8 @@
 export const mainScript = `
 const TEMPLATE_SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
+const ADMIN_EMAIL = 'ayushmokal13@gmail.com';
+const PDF_FOLDER_ID = '1Z9dygHEDb-ZOSzAVqxIFTu7iJ7ADgWdD';
+const EMAIL_LOG_SPREADSHEET_ID = '1mnPy-8Kzp_ffbU6H-0jpQH0CIf0F4wb0pplK-KQxDbk';
 
 function doGet(e) {
   const params = e.parameter;
@@ -10,29 +13,13 @@ function doGet(e) {
   let result;
   
   try {
-    switch (action) {
-      case 'createCopy':
-        result = createSpreadsheetCopy();
-        break;
-      case 'submit':
-        if (!data || !data.spreadsheetId) {
-          throw new Error('No data or spreadsheetId provided');
-        }
-        result = handleSubmit(data);
-        break;
-      case 'sendEmail':
-        if (!data || !data.spreadsheetId || !data.emailTo) {
-          throw new Error('Missing required data for sending email');
-        }
-        const ss = SpreadsheetApp.openById(data.spreadsheetId);
-        const emailResult = sendEmailWithSpreadsheet(ss, data.emailTo);
-        result = {
-          status: emailResult ? 'success' : 'error',
-          message: emailResult ? 'Email sent successfully' : 'Failed to send email'
-        };
-        break;
-      default:
-        throw new Error('Invalid action');
+    if (action === 'submit') {
+      if (!data) {
+        throw new Error('No data provided');
+      }
+      result = handleSubmit(data);
+    } else {
+      throw new Error('Invalid action');
     }
     
     return ContentService.createTextOutput(callback + '(' + JSON.stringify(result) + ')')
