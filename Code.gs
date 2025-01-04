@@ -1,6 +1,7 @@
 const TEMPLATE_SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
 const ADMIN_EMAIL = 'ayushmokal13@gmail.com';
 const PDF_FOLDER_ID = '1Z9dygHEDb-ZOSzAVqxIFTu7iJ7ADgWdD';
+const EMAIL_LOG_SPREADSHEET_ID = '1mnPy-8Kzp_ffbU6H-0jpQH0CIf0F4wb0pplK-KQxDbk';
 
 function doGet(e) {
   const params = e.parameter;
@@ -251,6 +252,30 @@ function writeMorphGradeFinal(sheet, data) {
   console.log("Wrote Morph Grade Final data");
 }
 
+function logEmailSend(data, spreadsheetUrl, pdfUrl) {
+  try {
+    const logSheet = SpreadsheetApp.openById(EMAIL_LOG_SPREADSHEET_ID).getActiveSheet();
+    const timestamp = new Date();
+    
+    // Add new row with email send data
+    logSheet.appendRow([
+      timestamp,
+      data.facility,
+      data.date,
+      data.technician,
+      data.serialNumber,
+      data.emailTo,
+      data.phone,
+      spreadsheetUrl,
+      pdfUrl
+    ]);
+    
+    console.log("Email send logged successfully");
+  } catch (error) {
+    console.error("Error logging email send:", error);
+  }
+}
+
 function sendAdminNotification(data, spreadsheetUrl, pdfUrl) {
   const subject = 'New SQA Data Submission - ' + data.facility;
   const body = `New SQA data submission received:
@@ -266,4 +291,7 @@ Spreadsheet: ${spreadsheetUrl}
 PDF: ${pdfUrl}`;
 
   GmailApp.sendEmail(ADMIN_EMAIL, subject, body);
+  
+  // Log the email send after sending notification
+  logEmailSend(data, spreadsheetUrl, pdfUrl);
 }
