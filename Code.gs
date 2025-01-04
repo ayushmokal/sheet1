@@ -51,8 +51,8 @@ function handleSubmit(data) {
     const sanitizedFacility = data.facility.replace(/[^a-zA-Z0-9]/g, '');
     const cleanSerialNumber = data.serialNumber.trim().replace(/[^a-zA-Z0-9]/g, '');
     
-    // Create new filename format
-    const fileName = `${formattedDate}-${cleanSerialNumber}-${sanitizedFacility}`;
+    // Create new filename format with BATCH ID structure
+    const fileName = `${formattedDate}-BATCH ID:${cleanSerialNumber}-${sanitizedFacility}`;
     
     // Create new spreadsheet from template
     const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
