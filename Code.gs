@@ -1,4 +1,4 @@
-const TEMPLATE_SPREADSHEET_ID = '1mnPy-8Kzp_ffbU6H-0jpQH0CIf0F4wb0pplK-KQxDbk';
+const TEMPLATE_SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
 const ADMIN_EMAIL = 'ayushmokal13@gmail.com';
 const PDF_FOLDER_ID = '1Z9dygHEDb-ZOSzAVqxIFTu7iJ7ADgWdD';
 
@@ -240,14 +240,7 @@ function recordSubmission(data) {
     ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
     ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
     ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['04/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890'],
-    ['04/01/2025', 'Test Facility', 'test@example.com', '123-456-7890']
+    ['03/01/2025', 'Test Facility', 'test@example.com', '123-456-7890']
   ];
   
   // Get the last row
