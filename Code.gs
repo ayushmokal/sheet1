@@ -39,9 +39,23 @@ function handleSubmit(data) {
   console.log("Starting handleSubmit with data:", data);
   
   try {
+    // Format the date for the filename
+    const dateObj = new Date(data.date);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    
+    // Sanitize facility name (remove special characters and spaces)
+    const sanitizedFacility = data.facility.replace(/[^a-zA-Z0-9]/g, '');
+    const cleanSerialNumber = data.serialNumber.trim().replace(/[^a-zA-Z0-9]/g, '');
+    
+    // Create new filename format
+    const fileName = `${formattedDate}-${cleanSerialNumber}-${sanitizedFacility}`;
+    
     // Create new spreadsheet from template
     const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
-    const newFile = templateFile.makeCopy('SQA Data Collection Form - ' + new Date().toISOString());
+    const newFile = templateFile.makeCopy(fileName);
     const ss = SpreadsheetApp.openById(newFile.getId());
     const sheet = ss.getSheets()[0];
     
@@ -67,7 +81,7 @@ function handleSubmit(data) {
       gridlines: false  // Hide gridlines
     };
     
-    const pdfBlob = ss.getAs(MimeType.PDF).setName('SQA Data Collection Form.pdf');
+    const pdfBlob = ss.getAs(MimeType.PDF).setName(`${fileName}.pdf`);
     const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
     
     // Send admin notification
