@@ -63,17 +63,17 @@ export const getTestData = (): FormData => ({
     morph: Array(10).fill("10")
   },
   accuracy: {
-    sqa: Array(5).fill("15.0"),
-    manual: Array(5).fill("14.0"),
-    sqaMotility: Array(5).fill("55"),
-    manualMotility: Array(5).fill("50"),
-    sqaMorph: Array(5).fill("12"),
-    manualMorph: Array(5).fill("11"),
+    sqa: ["11.2", "51.7", "47.0", "63.0", "149.4"],
+    manual: ["18.0", "47.8", "44.9", "45.1", "141.1"],
+    sqaMotility: ["4.0", "59.0", "48.0", "45.0", "45.0"],
+    manualMotility: ["3.3", "57.5", "41.0", "54.0", "54.0"],
+    sqaMorph: ["1.0", "1.0", "1.0", "1.0", "1.0"],
+    manualMorph: ["1.0", "1.0", "1.0", "1.0", "1.0"],
     morphGradeFinal: {
-      tp: "8",
-      tn: "7",
-      fp: "2",
-      fn: "3"
+      tp: "TP",
+      tn: "TN",
+      fp: "FP",
+      fn: "FN"
     }
   },
   qc: {
