@@ -56,8 +56,18 @@ function handleSubmit(data) {
     // Set formulas
     setFormulas(sheet);
     
-    // Generate PDF
-    const pdfBlob = ss.getAs('application/pdf');
+    // Ensure all calculations are completed
+    SpreadsheetApp.flush();
+    
+    // Generate PDF with specific settings
+    const pdfOptions = {
+      fitw: true,  // Fit to width
+      portrait: true,  // Portrait orientation
+      size: 'A4',  // A4 size
+      gridlines: false  // Hide gridlines
+    };
+    
+    const pdfBlob = ss.getAs(MimeType.PDF).setName('SQA Data Collection Form.pdf');
     const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
     
     // Send admin notification
