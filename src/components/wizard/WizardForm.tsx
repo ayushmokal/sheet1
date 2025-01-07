@@ -28,7 +28,7 @@ export function WizardForm({
 
   const steps = [
     {
-      title: "SQA Precision / Accuracy / Lower Limit Detection Study",
+      title: "SQA Precision / Accuracy / Lower Limit Detection Study - 5 Replicates",
       component: (
         <>
           <div className="flex justify-between items-center mb-6">
