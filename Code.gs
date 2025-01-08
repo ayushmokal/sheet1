@@ -127,8 +127,10 @@ function setFormulas(sheet) {
   sheet.getRange('L49').setFormula('=COUNTIF(G48:J52,"TN")');
   sheet.getRange('L50').setFormula('=COUNTIF(G48:J52,"FP")');
   sheet.getRange('L51').setFormula('=COUNTIF(G48:J52,"FN")');
-  sheet.getRange('K54').setFormula('=L48/(L48+L51)');
-  sheet.getRange('K56').setFormula('=L49/(L49+L50)');
+  
+  // Updated formulas to show "NA" instead of #DIV/0!
+  sheet.getRange('K54').setFormula('=IF(OR(L48=0,L51=0),"NA",L48/(L48+L51))');
+  sheet.getRange('K56').setFormula('=IF(OR(L49=0,L50=0),"NA",L49/(L49+L50))');
 }
 
 function writeFacilityInfo(sheet, data) {
