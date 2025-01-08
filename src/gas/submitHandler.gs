@@ -25,12 +25,6 @@ function handleSubmit(data) {
     // Write data to spreadsheet
     writeAllData(sheet, data);
     
-    // Set formulas
-    setFormulas(sheet);
-    
-    // Ensure all calculations are completed
-    SpreadsheetApp.flush();
-    
     // Generate PDF with specific settings
     const pdfBlob = ss.getAs(MimeType.PDF).setName(`${fileName}.pdf`);
     const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
