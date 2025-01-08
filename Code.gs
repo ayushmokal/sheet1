@@ -309,6 +309,28 @@ function writeAccuracyData(sheet, data) {
   console.log("Wrote Accuracy data");
 }
 
+function writeMorphGradeFinal(sheet, data) {
+  // Write Morph Grade Final data
+  const tp = parseFloat(data.accuracy.morphGradeFinal.tp) || 0;
+  const tn = parseFloat(data.accuracy.morphGradeFinal.tn) || 0;
+  const fp = parseFloat(data.accuracy.morphGradeFinal.fp) || 0;
+  const fn = parseFloat(data.accuracy.morphGradeFinal.fn) || 0;
+
+  sheet.getRange('L48').setValue(tp);
+  sheet.getRange('L49').setValue(tn);
+  sheet.getRange('L50').setValue(fp);
+  sheet.getRange('L51').setValue(fn);
+
+  // Calculate and set sensitivity and specificity
+  const sensitivity = tp + fn !== 0 ? (tp / (tp + fn)) * 100 : 0;
+  const specificity = fp + tn !== 0 ? (tn / (fp + tn)) * 100 : 0;
+
+  sheet.getRange('L46').setValue(sensitivity);
+  sheet.getRange('L47').setValue(specificity);
+  
+  console.log("Wrote Morph Grade Final data");
+}
+
 function writeQCData(sheet, data) {
   // Set header
   sheet.getRange('A67').setValue('PRECISION & SENSITIVITY - QC');
