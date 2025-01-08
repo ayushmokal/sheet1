@@ -70,7 +70,7 @@ function handleSubmit(data) {
     
     // Set formulas and create graphs
     setFormulas(sheet);
-    createAccuracyGraphs(sheet, data);
+    createAccuracyGraphs(sheet);
     
     // Ensure all calculations are completed
     SpreadsheetApp.flush();
@@ -121,7 +121,7 @@ function setFormulas(sheet) {
   sheet.getRange('K56').setFormula('=IF(OR(L49=0,L50=0),"NA",L49/(L49+L50))');
 }
 
-function createAccuracyGraphs(sheet, data) {
+function createAccuracyGraphs(sheet) {
   // Create arrays for correlation calculation
   const concData = [];
   const motilityData = [];
