@@ -9,7 +9,83 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      files: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string
+          id: string
+          submission_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          submission_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          submission_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      submissions: {
+        Row: {
+          created_at: string | null
+          date: string
+          email: string
+          facility: string
+          id: string
+          phone: string | null
+          serial_number: string
+          status: Database["public"]["Enums"]["submission_status"] | null
+          technician: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          email: string
+          facility: string
+          id?: string
+          phone?: string | null
+          serial_number: string
+          status?: Database["public"]["Enums"]["submission_status"] | null
+          technician: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          email?: string
+          facility?: string
+          id?: string
+          phone?: string | null
+          serial_number?: string
+          status?: Database["public"]["Enums"]["submission_status"] | null
+          technician?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +94,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      submission_status: "pending" | "completed" | "error"
     }
     CompositeTypes: {
       [_ in never]: never

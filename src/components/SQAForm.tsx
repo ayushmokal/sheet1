@@ -3,7 +3,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { WizardForm } from "./wizard/WizardForm";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
-import { APPS_SCRIPT_URL } from "@/config/constants";
+import { generateExcelFile } from "@/utils/excelUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -53,40 +54,50 @@ export function SQAForm() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    let script: HTMLScriptElement | null = null;
 
     try {
-      const submitCallbackName = `callback_${Date.now()}`;
-      
-      const submitPromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
-        (window as any)[submitCallbackName] = (response: GoogleScriptResponse) => {
-          resolve(response);
-          delete (window as any)[submitCallbackName];
-        };
-
-        const submitScript = document.createElement('script');
-        const encodedData = encodeURIComponent(JSON.stringify(formData));
-        submitScript.src = `${APPS_SCRIPT_URL}?callback=${submitCallbackName}&action=submit&data=${encodedData}`;
-        
-        submitScript.onerror = () => {
-          reject(new Error('Failed to load the submit script'));
-          delete (window as any)[submitCallbackName];
-        };
-
-        document.body.appendChild(submitScript);
-        script = submitScript;
+      // Generate Excel file
+      const excelBlob = generateExcelFile(formData);
+      const excelFile = new File([excelBlob], `${formData.facility}-${formData.date}.xlsx`, {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       });
 
-      const submitResponse = await submitPromise;
+      // Create submission record
+      const { data: submissionData, error: submissionError } = await supabase
+        .from('submissions')
+        .insert({
+          facility: formData.facility,
+          date: formData.date,
+          technician: formData.technician,
+          serial_number: formData.serialNumber,
+          email: formData.emailTo,
+          phone: formData.phone
+        })
+        .select()
+        .single();
 
-      if (submitResponse.status === 'success') {
-        toast({
-          title: "Success!",
-          description: "Your data has been submitted successfully.",
-        });
-      } else {
-        throw new Error(submitResponse.message || 'Failed to submit data');
+      if (submissionError) {
+        throw new Error(`Failed to create submission: ${submissionError.message}`);
       }
+
+      // Upload Excel file
+      const formDataExcel = new FormData();
+      formDataExcel.append('file', excelFile);
+      formDataExcel.append('submissionId', submissionData.id);
+      formDataExcel.append('fileType', 'excel');
+
+      const response = await supabase.functions.invoke('upload-file', {
+        body: formDataExcel
+      });
+
+      if (response.error) {
+        throw new Error(`Failed to upload file: ${response.error.message}`);
+      }
+
+      toast({
+        title: "Success!",
+        description: "Your data has been submitted successfully.",
+      });
     } catch (error) {
       console.error('Error submitting form:', error);
       toast({
@@ -95,9 +106,6 @@ export function SQAForm() {
         variant: "destructive",
       });
     } finally {
-      if (script && script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
       setIsSubmitting(false);
     }
   };
