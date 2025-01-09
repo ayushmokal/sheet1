@@ -45,13 +45,16 @@ export function SQAForm() {
 
   const handleLoadTestData = () => {
     setFormData(getTestData());
+    toast({
+      title: "Test Data Loaded",
+      description: "The form has been filled with test data.",
+    });
   };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
     try {
-      // Get the latest master template
       const { data: templates, error: templateError } = await supabase
         .from('master_templates')
         .select('*')
@@ -64,7 +67,6 @@ export function SQAForm() {
         throw new Error('No active master template found');
       }
 
-      // Create submission record
       const { data: submissionData, error: submissionError } = await supabase
         .from('submissions')
         .insert({
@@ -80,7 +82,6 @@ export function SQAForm() {
 
       if (submissionError) throw submissionError;
 
-      // Process submission with template
       const formDataBody = new FormData();
       formDataBody.append('submissionId', submissionData.id);
       formDataBody.append('templateId', templates[0].id);
