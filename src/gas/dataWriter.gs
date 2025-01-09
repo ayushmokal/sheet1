@@ -1,95 +1,80 @@
 function writeAllData(sheet, data) {
-  writeFacilityInfo(sheet, data);
-  writeLowerLimitDetection(sheet, data);
-  writePrecisionData(sheet, data);
-  writeAccuracyData(sheet, data);
-  writeMorphGradeFinal(sheet, data);
-  writeQCData(sheet, data);
+  // Write facility info (B3:B6)
+  const facilityInfoValues = [
+    [data.facility],
+    [data.date],
+    [data.technician],
+    [data.serialNumber]
+  ];
+  sheet.getRange('B3:B6').setValues(facilityInfoValues);
+  
+  // Write Lower Limit Detection data (B12:C16)
+  const lldRange = sheet.getRange('B12:C16');
+  for (let i = 0; i < 5; i++) {
+    const row = lldRange.getCell(i + 1, 1);
+    const concValue = data.lowerLimitDetection.conc[i] || '1';
+    row.setValue(concValue);
+    
+    const mscCell = lldRange.getCell(i + 1, 2);
+    const mscValue = data.lowerLimitDetection.msc[i] || '1';
+    mscCell.setValue(mscValue);
+  }
+  
+  // Write Precision Level 1 data (B24:D28)
+  const precisionL1Range = sheet.getRange('B24:D28');
+  for (let i = 0; i < 5; i++) {
+    const concValue = data.precisionLevel1.conc[i] || '1';
+    const motilityValue = data.precisionLevel1.motility[i] || '1';
+    const morphValue = data.precisionLevel1.morph[i] || '1';
+    
+    precisionL1Range.getCell(i + 1, 1).setValue(concValue);
+    precisionL1Range.getCell(i + 1, 2).setValue(motilityValue);
+    precisionL1Range.getCell(i + 1, 3).setValue(morphValue);
+  }
+  
+  // Write Precision Level 2 data (B36:D40)
+  const precisionL2Range = sheet.getRange('B36:D40');
+  for (let i = 0; i < 5; i++) {
+    const concValue = data.precisionLevel2.conc[i] || '1';
+    const motilityValue = data.precisionLevel2.motility[i] || '1';
+    const morphValue = data.precisionLevel2.morph[i] || '1';
+    
+    precisionL2Range.getCell(i + 1, 1).setValue(concValue);
+    precisionL2Range.getCell(i + 1, 2).setValue(motilityValue);
+    precisionL2Range.getCell(i + 1, 3).setValue(morphValue);
+  }
+  
+  // Write Accuracy data (A48:F52)
+  const accuracyRange = sheet.getRange('A48:F52');
+  for (let i = 0; i < 5; i++) {
+    const sqaValue = data.accuracy.sqa[i] || '1';
+    const manualValue = data.accuracy.manual[i] || '1';
+    const sqaMotilityValue = data.accuracy.sqaMotility[i] || '1';
+    const manualMotilityValue = data.accuracy.manualMotility[i] || '1';
+    const sqaMorphValue = data.accuracy.sqaMorph[i] || '1';
+    const manualMorphValue = data.accuracy.manualMorph[i] || '1';
+    
+    accuracyRange.getCell(i + 1, 1).setValue(sqaValue);
+    accuracyRange.getCell(i + 1, 2).setValue(manualValue);
+    accuracyRange.getCell(i + 1, 3).setValue(sqaMotilityValue);
+    accuracyRange.getCell(i + 1, 4).setValue(manualMotilityValue);
+    accuracyRange.getCell(i + 1, 5).setValue(sqaMorphValue);
+    accuracyRange.getCell(i + 1, 6).setValue(manualMorphValue);
+  }
+  
+  // Write QC data (B71:C75)
+  const qcRange = sheet.getRange('B71:C75');
+  for (let i = 0; i < 5; i++) {
+    const level1Value = data.qc.level1[i] || '1';
+    const level2Value = data.qc.level2[i] || '1';
+    
+    qcRange.getCell(i + 1, 1).setValue(level1Value);
+    qcRange.getCell(i + 1, 2).setValue(level2Value);
+  }
+  
+  // Set formulas and create graphs after writing data
   setFormulas(sheet);
-  createAccuracyGraphs(sheet, data);
-}
-
-function writeFacilityInfo(sheet, data) {
-  sheet.getRange('B3:H3').setValue(data.facility);
-  sheet.getRange('B4:H4').setValue(data.date);
-  sheet.getRange('B5:H5').setValue(data.technician);
-  sheet.getRange('B6:H6').setValue(data.serialNumber);
-  console.log("Wrote facility info");
-}
-
-function writeLowerLimitDetection(sheet, data) {
-  for (let i = 0; i < data.lowerLimitDetection.conc.length; i++) {
-    const row = 12 + i;
-    if (row <= 16) {
-      sheet.getRange('B' + row).setValue(data.lowerLimitDetection.conc[i]);
-      sheet.getRange('C' + row).setValue(data.lowerLimitDetection.msc[i]);
-    }
-  }
-  console.log("Wrote Lower Limit Detection data");
-}
-
-function writePrecisionData(sheet, data) {
-  // Level 1
-  for (let i = 0; i < data.precisionLevel1.conc.length; i++) {
-    const row = 24 + i;
-    if (row <= 28) {
-      sheet.getRange('B' + row).setValue(data.precisionLevel1.conc[i]);
-      sheet.getRange('C' + row).setValue(data.precisionLevel1.motility[i]);
-      sheet.getRange('D' + row).setValue(data.precisionLevel1.morph[i]);
-    }
-  }
-
-  // Level 2
-  for (let i = 0; i < data.precisionLevel2.conc.length; i++) {
-    const row = 36 + i;
-    if (row <= 40) {
-      sheet.getRange('B' + row).setValue(data.precisionLevel2.conc[i]);
-      sheet.getRange('C' + row).setValue(data.precisionLevel2.motility[i]);
-      sheet.getRange('D' + row).setValue(data.precisionLevel2.morph[i]);
-    }
-  }
-  console.log("Wrote Precision data");
-}
-
-function writeAccuracyData(sheet, data) {
-  for (let i = 0; i < data.accuracy.sqa.length; i++) {
-    const row = 48 + i;
-    sheet.getRange('A' + row).setValue(data.accuracy.sqa[i]);
-    sheet.getRange('B' + row).setValue(data.accuracy.manual[i]);
-    sheet.getRange('C' + row).setValue(data.accuracy.sqaMotility[i]);
-    sheet.getRange('D' + row).setValue(data.accuracy.manualMotility[i]);
-    sheet.getRange('E' + row).setValue(data.accuracy.sqaMorph[i]);
-    sheet.getRange('F' + row).setValue(data.accuracy.manualMorph[i]);
-  }
-  console.log("Wrote Accuracy data");
-}
-
-function writeMorphGradeFinal(sheet, data) {
-  const tp = parseFloat(data.accuracy.morphGradeFinal.tp) || 0;
-  const tn = parseFloat(data.accuracy.morphGradeFinal.tn) || 0;
-  const fp = parseFloat(data.accuracy.morphGradeFinal.fp) || 0;
-  const fn = parseFloat(data.accuracy.morphGradeFinal.fn) || 0;
-
-  sheet.getRange('L48').setValue(tp);
-  sheet.getRange('L49').setValue(tn);
-  sheet.getRange('L50').setValue(fp);
-  sheet.getRange('L51').setValue(fn);
-
-  const sensitivity = tp + fn !== 0 ? (tp / (tp + fn)) * 100 : 0;
-  const specificity = fp + tn !== 0 ? (tn / (fp + tn)) * 100 : 0;
-
-  sheet.getRange('L46').setValue(sensitivity);
-  sheet.getRange('L47').setValue(specificity);
-  console.log("Wrote Morph Grade Final data");
-}
-
-function writeQCData(sheet, data) {
-  for (let i = 0; i < data.qc.level1.length; i++) {
-    const row = 86 + i;
-    if (row !== 93 && row !== 94 && row !== 95) {
-      sheet.getRange('B' + row).setValue(data.qc.level1[i]);
-      sheet.getRange('C' + row).setValue(data.qc.level2[i]);
-    }
-  }
-  console.log("Wrote QC data");
+  createAccuracyGraphs(sheet);
+  
+  console.log("Completed writing all data to sheet");
 }
