@@ -40,7 +40,15 @@ export async function downloadTemplate(supabase: ReturnType<typeof createClient>
   return templateFile;
 }
 
-export function generateFileName(facility: string, serialNumber: string, date: string) {
-  const dateStr = new Date(date).toISOString().split('T')[0];
-  return `${facility} – SN ${serialNumber} Precision Lower Limit Detection Study ${dateStr}.xlsx`;
+export function generateFileName(facility: string, serialNumber: string, date: string): string {
+  // Sanitize individual components
+  const sanitizedFacility = facility.replace(/[^a-zA-Z0-9]/g, '_');
+  const sanitizedSerialNumber = serialNumber.replace(/[^a-zA-Z0-9]/g, '_');
+  const sanitizedDate = date.replace(/[^0-9-]/g, '_');
+
+  // Generate a timestamp to ensure uniqueness
+  const timestamp = new Date().getTime();
+
+  // Construct the filename with sanitized components
+  return `submissions/${sanitizedFacility}_SN_${sanitizedSerialNumber}_Precision_Lower_Limit_Detection_Study_${sanitizedDate}_${timestamp}.xlsx`;
 }
