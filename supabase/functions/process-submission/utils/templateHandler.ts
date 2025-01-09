@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-import * as XLSX from 'xlsx';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import * as XLSX from 'https://esm.sh/xlsx@0.18.5';
 
 export async function getActiveTemplate(supabase: ReturnType<typeof createClient>) {
   console.log('Fetching active template...');
