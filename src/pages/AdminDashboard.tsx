@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -10,8 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { Download, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -20,6 +18,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { TemplateUploader } from "@/components/admin/TemplateUploader";
+import { TemplateList } from "@/components/admin/TemplateList";
+import type { MasterTemplate } from "@/types/templates";
 
 interface Submission {
   id: string;
@@ -38,19 +39,7 @@ interface Submission {
   }[];
 }
 
-interface MasterTemplate {
-  id: string;
-  name: string;
-  file_path: string;
-  created_at: string;
-  is_active: boolean;
-}
-
 export function AdminDashboard() {
-  const { toast } = useToast();
-  const [isDownloading, setIsDownloading] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-
   const { data: submissions, isLoading: isLoadingSubmissions } = useQuery({
     queryKey: ["submissions"],
     queryFn: async () => {
@@ -85,81 +74,6 @@ export function AdminDashboard() {
     },
   });
 
-  const handleDownload = async (filePath: string, fileName: string) => {
-    try {
-      setIsDownloading(filePath);
-      const { data, error } = await supabase.storage
-        .from("sqa_files")
-        .download(filePath);
-
-      if (error) throw error;
-
-      const url = window.URL.createObjectURL(data);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      toast({
-        title: "Success",
-        description: "File downloaded successfully",
-      });
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      toast({
-        title: "Error",
-        description: "Failed to download file",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDownloading(null);
-    }
-  };
-
-  const handleTemplateUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setIsUploading(true);
-
-      // Upload file to storage
-      const filePath = `templates/${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("sqa_files")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Create template record
-      const { error: dbError } = await supabase
-        .from("master_templates")
-        .insert({
-          name: file.name,
-          file_path: filePath,
-        });
-
-      if (dbError) throw dbError;
-
-      toast({
-        title: "Success",
-        description: "Template uploaded successfully",
-      });
-    } catch (error) {
-      console.error("Error uploading template:", error);
-      toast({
-        title: "Error",
-        description: "Failed to upload template",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   if (isLoadingSubmissions || isLoadingTemplates) {
     return <div className="p-8">Loading...</div>;
   }
@@ -183,34 +97,12 @@ export function AdminDashboard() {
               </SheetDescription>
             </SheetHeader>
             <div className="mt-6">
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleTemplateUpload}
-                disabled={isUploading}
-                className="w-full"
-              />
+              <TemplateUploader />
             </div>
             {templates && templates.length > 0 && (
               <div className="mt-6">
                 <h3 className="font-medium mb-2">Current Templates</h3>
-                <div className="space-y-2">
-                  {templates.map((template) => (
-                    <div
-                      key={template.id}
-                      className="flex items-center justify-between p-2 border rounded"
-                    >
-                      <span>{template.name}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDownload(template.file_path, template.name)}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                <TemplateList templates={templates} />
               </div>
             )}
           </SheetContent>
