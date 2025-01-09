@@ -1,6 +1,6 @@
-import { FormData } from "@/types/form";
+import { SQAFormData } from "@/types/form";
 
-export const initialFormData: FormData = {
+export const initialFormData: SQAFormData = {
   facility: "",
   date: "",
   technician: "",
@@ -41,7 +41,7 @@ export const initialFormData: FormData = {
   }
 };
 
-export const getTestData = (): FormData => ({
+export const getTestData = (): SQAFormData => ({
   facility: "Test Facility",
   date: "2024-03-20",
   technician: "John Doe",

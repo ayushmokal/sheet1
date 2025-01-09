@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
-import { FormData } from '@/types/form';
+import { SQAFormData } from '@/types/form';
 
-export const generateExcelFile = (data: FormData): Blob => {
+export const generateExcelFile = (data: SQAFormData): Blob => {
   const wb = XLSX.utils.book_new();
   
   // Create worksheets for each section

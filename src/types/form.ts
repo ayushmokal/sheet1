@@ -1,4 +1,4 @@
-export interface FormData {
+export interface SQAFormData {
   spreadsheetId?: string;
   facility: string;
   date: string;

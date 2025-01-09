@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { WizardForm } from "./wizard/WizardForm";
-import { FormData, GoogleScriptResponse } from "@/types/form";
+import { SQAFormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
 import { generateExcelFile } from "@/utils/excelUtils";
 import { supabase } from "@/integrations/supabase/client";
 
 export function SQAForm() {
-  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [formData, setFormData] = useState<SQAFormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
