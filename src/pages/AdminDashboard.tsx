@@ -74,7 +74,10 @@ export function AdminDashboard() {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching templates:", error);
+        throw error;
+      }
       return data as MasterTemplate[];
     },
   });
@@ -86,7 +89,10 @@ export function AdminDashboard() {
         .from("sqa_files")
         .download(filePath);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error downloading file:", error);
+        throw error;
+      }
 
       const url = window.URL.createObjectURL(data);
       const link = document.createElement("a");
