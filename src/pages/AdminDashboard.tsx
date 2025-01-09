@@ -11,7 +11,15 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Download } from "lucide-react";
+import { Download, Upload } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface Submission {
   id: string;
@@ -30,11 +38,20 @@ interface Submission {
   }[];
 }
 
+interface MasterTemplate {
+  id: string;
+  name: string;
+  file_path: string;
+  created_at: string;
+  is_active: boolean;
+}
+
 export function AdminDashboard() {
   const { toast } = useToast();
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const { data: submissions, isLoading } = useQuery({
+  const { data: submissions, isLoading: isLoadingSubmissions } = useQuery({
     queryKey: ["submissions"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -55,6 +72,19 @@ export function AdminDashboard() {
     },
   });
 
+  const { data: templates, isLoading: isLoadingTemplates } = useQuery({
+    queryKey: ["master_templates"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("master_templates")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as MasterTemplate[];
+    },
+  });
+
   const handleDownload = async (filePath: string, fileName: string) => {
     try {
       setIsDownloading(filePath);
@@ -64,7 +94,6 @@ export function AdminDashboard() {
 
       if (error) throw error;
 
-      // Create a download link
       const url = window.URL.createObjectURL(data);
       const link = document.createElement("a");
       link.href = url;
@@ -90,13 +119,104 @@ export function AdminDashboard() {
     }
   };
 
-  if (isLoading) {
-    return <div className="p-8">Loading submissions...</div>;
+  const handleTemplateUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+
+      // Upload file to storage
+      const filePath = `templates/${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("sqa_files")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Create template record
+      const { error: dbError } = await supabase
+        .from("master_templates")
+        .insert({
+          name: file.name,
+          file_path: filePath,
+        });
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Success",
+        description: "Template uploaded successfully",
+      });
+    } catch (error) {
+      console.error("Error uploading template:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload template",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  if (isLoadingSubmissions || isLoadingTemplates) {
+    return <div className="p-8">Loading...</div>;
   }
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">SQA Submissions</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">SQA Submissions</h1>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Upload Master Template
+            </Button>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Upload Master Template</SheetTitle>
+              <SheetDescription>
+                Upload an Excel file that will be used as a template for all submissions.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="mt-6">
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleTemplateUpload}
+                disabled={isUploading}
+                className="w-full"
+              />
+            </div>
+            {templates && templates.length > 0 && (
+              <div className="mt-6">
+                <h3 className="font-medium mb-2">Current Templates</h3>
+                <div className="space-y-2">
+                  {templates.map((template) => (
+                    <div
+                      key={template.id}
+                      className="flex items-center justify-between p-2 border rounded"
+                    >
+                      <span>{template.name}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDownload(template.file_path, template.name)}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </SheetContent>
+        </Sheet>
+      </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>

@@ -47,6 +47,33 @@ export type Database = {
           },
         ]
       }
+      master_templates: {
+        Row: {
+          created_at: string | null
+          file_path: string
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_path: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_path?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       submissions: {
         Row: {
           created_at: string | null
