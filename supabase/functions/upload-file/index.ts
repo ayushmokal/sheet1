@@ -17,9 +17,9 @@ serve(async (req) => {
     const submissionId = formData.get('submissionId')
     const fileType = formData.get('fileType')
 
-    if (!file || !submissionId || !fileType) {
+    if (!file) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ error: 'No file uploaded' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
@@ -29,10 +29,46 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const fileName = file.name.replace(/[^\x00-\x7F]/g, '')
-    const fileExt = fileName.split('.').pop()
-    const filePath = `${submissionId}/${crypto.randomUUID()}.${fileExt}`
+    // Get the latest master template
+    const { data: templates, error: templateError } = await supabase
+      .from('master_templates')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
 
+    if (templateError) {
+      return new Response(
+        JSON.stringify({ error: 'Failed to get master template', details: templateError }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
+    }
+
+    const masterTemplate = templates[0]
+    if (!masterTemplate) {
+      return new Response(
+        JSON.stringify({ error: 'No master template found' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      )
+    }
+
+    // Download the master template
+    const { data: templateData, error: downloadError } = await supabase.storage
+      .from('sqa_files')
+      .download(masterTemplate.file_path)
+
+    if (downloadError) {
+      return new Response(
+        JSON.stringify({ error: 'Failed to download master template', details: downloadError }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
+    }
+
+    // Create a new file name for the submission copy
+    const sanitizedFileName = file.name.replace(/[^\x00-\x7F]/g, '')
+    const fileExt = sanitizedFileName.split('.').pop()
+    const filePath = `${crypto.randomUUID()}.${fileExt}`
+
+    // Upload the file
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('sqa_files')
       .upload(filePath, file, {
@@ -41,25 +77,24 @@ serve(async (req) => {
       })
 
     if (uploadError) {
-      console.error('Upload error:', uploadError)
       return new Response(
         JSON.stringify({ error: 'Failed to upload file', details: uploadError }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
 
+    // Insert file record
     const { error: dbError } = await supabase
       .from('files')
       .insert({
         submission_id: submissionId,
-        file_name: fileName,
+        file_name: sanitizedFileName,
         file_type: fileType,
         file_path: filePath,
         file_size: file.size
       })
 
     if (dbError) {
-      console.error('Database error:', dbError)
       return new Response(
         JSON.stringify({ error: 'Failed to save file metadata', details: dbError }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
@@ -70,12 +105,11 @@ serve(async (req) => {
       JSON.stringify({ 
         message: 'File uploaded successfully', 
         filePath,
-        fileName 
+        templatePath: masterTemplate.file_path 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
-    console.error('Unexpected error:', error)
     return new Response(
       JSON.stringify({ error: 'An unexpected error occurred', details: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
