@@ -2,131 +2,64 @@ import * as XLSX from 'https://esm.sh/xlsx@0.18.5';
 
 export function writeFormDataToWorksheet(worksheet: XLSX.WorkSheet, data: any) {
   try {
-    console.log('Writing form data to worksheet while preserving formatting...');
+    console.log('Writing form data to worksheet...');
     
-    // Facility info (B3:B6)
-    const facilityInfo = [
-      [data.facility || ''],
-      [data.date || ''],
-      [data.technician || ''],
-      [data.serialNumber || '']
-    ];
-    
-    // Preserve existing cell styles and only update values
-    for (let i = 0; i < facilityInfo.length; i++) {
-      const cell = worksheet[XLSX.utils.encode_cell({ r: 2 + i, c: 1 })];
-      if (cell) {
-        cell.v = facilityInfo[i][0]; // Update value
-        cell.w = facilityInfo[i][0].toString(); // Update displayed text
-      }
-    }
+    // Facility info
+    XLSX.utils.sheet_add_aoa(worksheet, [[data.facility]], { origin: 'B3' });
+    XLSX.utils.sheet_add_aoa(worksheet, [[data.date]], { origin: 'B4' });
+    XLSX.utils.sheet_add_aoa(worksheet, [[data.technician]], { origin: 'B5' });
+    XLSX.utils.sheet_add_aoa(worksheet, [[data.serialNumber]], { origin: 'B6' });
 
-    // Lower Limit Detection (B12:C16)
+    // Lower Limit Detection
     for (let i = 0; i < 5; i++) {
-      const concCell = worksheet[XLSX.utils.encode_cell({ r: 11 + i, c: 1 })];
-      const mscCell = worksheet[XLSX.utils.encode_cell({ r: 11 + i, c: 2 })];
-      
-      if (concCell) {
-        concCell.v = data.lowerLimitDetection?.conc?.[i] || '1';
-        concCell.w = (data.lowerLimitDetection?.conc?.[i] || '1').toString();
-      }
-      if (mscCell) {
-        mscCell.v = data.lowerLimitDetection?.msc?.[i] || '1';
-        mscCell.w = (data.lowerLimitDetection?.msc?.[i] || '1').toString();
-      }
+      const concValue = data.lowerLimitDetection?.conc?.[i] || '';
+      const mscValue = data.lowerLimitDetection?.msc?.[i] || '';
+      XLSX.utils.sheet_add_aoa(worksheet, [[concValue, mscValue]], { origin: `B${12 + i}` });
     }
 
-    // Precision Level 1 (B24:D28)
+    // Precision Level 1
     for (let i = 0; i < 5; i++) {
-      const concCell = worksheet[XLSX.utils.encode_cell({ r: 23 + i, c: 1 })];
-      const motilityCell = worksheet[XLSX.utils.encode_cell({ r: 23 + i, c: 2 })];
-      const morphCell = worksheet[XLSX.utils.encode_cell({ r: 23 + i, c: 3 })];
-      
-      if (concCell) {
-        concCell.v = data.precisionLevel1?.conc?.[i] || '1';
-        concCell.w = (data.precisionLevel1?.conc?.[i] || '1').toString();
-      }
-      if (motilityCell) {
-        motilityCell.v = data.precisionLevel1?.motility?.[i] || '1';
-        motilityCell.w = (data.precisionLevel1?.motility?.[i] || '1').toString();
-      }
-      if (morphCell) {
-        morphCell.v = data.precisionLevel1?.morph?.[i] || '1';
-        morphCell.w = (data.precisionLevel1?.morph?.[i] || '1').toString();
-      }
+      const values = [
+        data.precisionLevel1?.conc?.[i] || '',
+        data.precisionLevel1?.motility?.[i] || '',
+        data.precisionLevel1?.morph?.[i] || ''
+      ];
+      XLSX.utils.sheet_add_aoa(worksheet, [values], { origin: `B${24 + i}` });
     }
 
-    // Precision Level 2 (B36:D40)
+    // Precision Level 2
     for (let i = 0; i < 5; i++) {
-      const concCell = worksheet[XLSX.utils.encode_cell({ r: 35 + i, c: 1 })];
-      const motilityCell = worksheet[XLSX.utils.encode_cell({ r: 35 + i, c: 2 })];
-      const morphCell = worksheet[XLSX.utils.encode_cell({ r: 35 + i, c: 3 })];
-      
-      if (concCell) {
-        concCell.v = data.precisionLevel2?.conc?.[i] || '1';
-        concCell.w = (data.precisionLevel2?.conc?.[i] || '1').toString();
-      }
-      if (motilityCell) {
-        motilityCell.v = data.precisionLevel2?.motility?.[i] || '1';
-        motilityCell.w = (data.precisionLevel2?.motility?.[i] || '1').toString();
-      }
-      if (morphCell) {
-        morphCell.v = data.precisionLevel2?.morph?.[i] || '1';
-        morphCell.w = (data.precisionLevel2?.morph?.[i] || '1').toString();
-      }
+      const values = [
+        data.precisionLevel2?.conc?.[i] || '',
+        data.precisionLevel2?.motility?.[i] || '',
+        data.precisionLevel2?.morph?.[i] || ''
+      ];
+      XLSX.utils.sheet_add_aoa(worksheet, [values], { origin: `B${36 + i}` });
     }
 
-    // Accuracy data (A48:F52)
+    // Accuracy data
     for (let i = 0; i < 5; i++) {
-      const sqaCell = worksheet[XLSX.utils.encode_cell({ r: 47 + i, c: 0 })];
-      const manualCell = worksheet[XLSX.utils.encode_cell({ r: 47 + i, c: 1 })];
-      const sqaMotilityCell = worksheet[XLSX.utils.encode_cell({ r: 47 + i, c: 2 })];
-      const manualMotilityCell = worksheet[XLSX.utils.encode_cell({ r: 47 + i, c: 3 })];
-      const sqaMorphCell = worksheet[XLSX.utils.encode_cell({ r: 47 + i, c: 4 })];
-      const manualMorphCell = worksheet[XLSX.utils.encode_cell({ r: 47 + i, c: 5 })];
-      
-      if (sqaCell) {
-        sqaCell.v = data.accuracy?.sqa?.[i] || '1';
-        sqaCell.w = (data.accuracy?.sqa?.[i] || '1').toString();
-      }
-      if (manualCell) {
-        manualCell.v = data.accuracy?.manual?.[i] || '1';
-        manualCell.w = (data.accuracy?.manual?.[i] || '1').toString();
-      }
-      if (sqaMotilityCell) {
-        sqaMotilityCell.v = data.accuracy?.sqaMotility?.[i] || '1';
-        sqaMotilityCell.w = (data.accuracy?.sqaMotility?.[i] || '1').toString();
-      }
-      if (manualMotilityCell) {
-        manualMotilityCell.v = data.accuracy?.manualMotility?.[i] || '1';
-        manualMotilityCell.w = (data.accuracy?.manualMotility?.[i] || '1').toString();
-      }
-      if (sqaMorphCell) {
-        sqaMorphCell.v = data.accuracy?.sqaMorph?.[i] || '1';
-        sqaMorphCell.w = (data.accuracy?.sqaMorph?.[i] || '1').toString();
-      }
-      if (manualMorphCell) {
-        manualMorphCell.v = data.accuracy?.manualMorph?.[i] || '1';
-        manualMorphCell.w = (data.accuracy?.manualMorph?.[i] || '1').toString();
-      }
+      const values = [
+        data.accuracy?.sqa?.[i] || '',
+        data.accuracy?.manual?.[i] || '',
+        data.accuracy?.sqaMotility?.[i] || '',
+        data.accuracy?.manualMotility?.[i] || '',
+        data.accuracy?.sqaMorph?.[i] || '',
+        data.accuracy?.manualMorph?.[i] || ''
+      ];
+      XLSX.utils.sheet_add_aoa(worksheet, [values], { origin: `A${48 + i}` });
     }
 
-    // QC data (B71:C75)
+    // QC data
     for (let i = 0; i < 5; i++) {
-      const level1Cell = worksheet[XLSX.utils.encode_cell({ r: 70 + i, c: 1 })];
-      const level2Cell = worksheet[XLSX.utils.encode_cell({ r: 70 + i, c: 2 })];
-      
-      if (level1Cell) {
-        level1Cell.v = data.qc?.level1?.[i] || '1';
-        level1Cell.w = (data.qc?.level1?.[i] || '1').toString();
-      }
-      if (level2Cell) {
-        level2Cell.v = data.qc?.level2?.[i] || '1';
-        level2Cell.w = (data.qc?.level2?.[i] || '1').toString();
-      }
+      const values = [
+        data.qc?.level1?.[i] || '',
+        data.qc?.level2?.[i] || ''
+      ];
+      XLSX.utils.sheet_add_aoa(worksheet, [values], { origin: `B${71 + i}` });
     }
 
-    console.log('Successfully wrote form data to worksheet while preserving formatting');
+    console.log('Successfully wrote form data to worksheet');
   } catch (error) {
     console.error('Error writing data to worksheet:', error);
     throw new Error('Failed to write data to worksheet: ' + (error as Error).message);
