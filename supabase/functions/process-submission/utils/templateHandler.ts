@@ -1,33 +1,50 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import * as XLSX from "https://esm.sh/xlsx@0.18.5";
-import { corsHeaders } from "./corsHeaders.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import * as XLSX from 'https://esm.sh/xlsx@0.18.5'
 
 export async function getActiveTemplate(supabase: any) {
+  console.log('Fetching active template...');
+  
   const { data: templates, error } = await supabase
     .from('master_templates')
     .select('*')
     .eq('is_active', true)
-    .single();
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-  if (error) throw new Error(`Failed to get active template: ${error.message}`);
-  if (!templates) throw new Error('No active template found');
+  if (error) {
+    console.error('Error fetching active template:', error);
+    throw new Error(`Failed to get active template: ${error.message}`);
+  }
   
+  if (!templates) {
+    console.error('No active template found');
+    throw new Error('No active template found in the database');
+  }
+  
+  console.log('Successfully fetched active template:', templates.id);
   return templates;
 }
 
 export async function downloadTemplate(supabase: any, filePath: string) {
+  console.log('Downloading template:', filePath);
+  
   const { data, error } = await supabase
     .storage
     .from('sqa_files')
     .download(filePath);
 
-  if (error) throw new Error(`Failed to download template: ${error.message}`);
+  if (error) {
+    console.error('Error downloading template:', error);
+    throw new Error(`Failed to download template: ${error.message}`);
+  }
+
+  console.log('Successfully downloaded template');
   return data;
 }
 
 export function generateFileName(facility: string, serialNumber: string, date: string): string {
-  // Sanitize inputs and create a timestamp for uniqueness
+  // Sanitize inputs
   const sanitizedFacility = facility.replace(/[^a-zA-Z0-9]/g, '_');
   const sanitizedSerial = serialNumber.replace(/[^a-zA-Z0-9]/g, '_');
   const timestamp = new Date().getTime();
@@ -43,40 +60,22 @@ export function writeFormDataToWorksheet(workbook: XLSX.WorkBook, data: any) {
   // Helper function to update cell value while preserving formatting
   const updateCell = (cellRef: string, value: any) => {
     const cell = worksheet[cellRef] || {};
-    // Preserve all existing cell properties
     const newCell = {
       ...cell,
-      v: value, // Update value
-      w: value?.toString() // Update displayed text
+      v: value, // raw value
+      w: value?.toString() // formatted text
     };
     worksheet[cellRef] = newCell;
   };
 
-  // Helper function to update a range of cells
-  const updateRange = (range: string, values: any[][]) => {
-    const [startCell, endCell] = range.split(':');
-    const [startCol, startRow] = XLSX.utils.decode_cell(startCell);
-    const [endCol, endRow] = endCell ? XLSX.utils.decode_cell(endCell) : [startCol, startRow];
-
-    for (let row = startRow; row <= endRow; row++) {
-      for (let col = startCol; col <= endCol; col++) {
-        const cellRef = XLSX.utils.encode_cell({ r: row, c: col });
-        const value = values[row - startRow]?.[col - startCol];
-        if (value !== undefined) {
-          updateCell(cellRef, value);
-        }
-      }
-    }
-  };
-
   try {
+    console.log('Writing form data to worksheet...');
+
     // Update facility info (B3:B6)
-    updateRange('B3:B6', [
-      [data.facility],
-      [data.date],
-      [data.technician],
-      [data.serialNumber]
-    ]);
+    updateCell('B3', data.facility);
+    updateCell('B4', data.date);
+    updateCell('B5', data.technician);
+    updateCell('B6', data.serialNumber);
 
     // Update Lower Limit Detection (B12:C16)
     for (let i = 0; i < 5; i++) {
