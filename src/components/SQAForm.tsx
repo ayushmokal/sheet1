@@ -3,6 +3,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { WizardForm } from "./wizard/WizardForm";
 import { SQAFormData } from "@/types/form";
 import { supabase } from "@/integrations/supabase/client";
+import { initialFormData, getTestData } from "@/utils/formUtils";
 
 export function SQAForm() {
   const [formData, setFormData] = useState<SQAFormData>(initialFormData);
@@ -42,6 +43,10 @@ export function SQAForm() {
     });
   };
 
+  const handleLoadTestData = () => {
+    setFormData(getTestData());
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
@@ -75,7 +80,7 @@ export function SQAForm() {
 
       if (submissionError) throw submissionError;
 
-      // Upload form data to be processed with the template
+      // Process submission with template
       const formDataBody = new FormData();
       formDataBody.append('submissionId', submissionData.id);
       formDataBody.append('templateId', templates[0].id);
@@ -109,6 +114,7 @@ export function SQAForm() {
         formData={formData}
         handleInputChange={handleInputChange}
         onSubmit={handleSubmit}
+        onLoadTestData={handleLoadTestData}
         isSubmitting={isSubmitting}
       />
     </form>

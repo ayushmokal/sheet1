@@ -8,18 +8,18 @@ export const initialFormData: SQAFormData = {
   emailTo: "",
   phone: "",
   lowerLimitDetection: {
-    conc: Array(10).fill(""),
-    msc: Array(10).fill("")
+    conc: Array(5).fill(""),
+    msc: Array(5).fill("")
   },
   precisionLevel1: {
-    conc: Array(10).fill(""),
-    motility: Array(10).fill(""),
-    morph: Array(10).fill("")
+    conc: Array(5).fill(""),
+    motility: Array(5).fill(""),
+    morph: Array(5).fill("")
   },
   precisionLevel2: {
-    conc: Array(10).fill(""),
-    motility: Array(10).fill(""),
-    morph: Array(10).fill("")
+    conc: Array(5).fill(""),
+    motility: Array(5).fill(""),
+    morph: Array(5).fill("")
   },
   accuracy: {
     sqa: Array(5).fill(""),
@@ -36,8 +36,8 @@ export const initialFormData: SQAFormData = {
     }
   },
   qc: {
-    level1: Array(10).fill(""),
-    level2: Array(10).fill("")
+    level1: Array(5).fill(""),
+    level2: Array(5).fill("")
   }
 };
 
@@ -49,18 +49,18 @@ export const getTestData = (): SQAFormData => ({
   emailTo: "test@example.com",
   phone: "123-456-7890",
   lowerLimitDetection: {
-    conc: Array(10).fill("1.0"),
-    msc: Array(10).fill("0.5")
+    conc: Array(5).fill("1.0"),
+    msc: Array(5).fill("0.5")
   },
   precisionLevel1: {
-    conc: Array(10).fill("2.0"),
-    motility: Array(10).fill("60"),
-    morph: Array(10).fill("14")
+    conc: Array(5).fill("2.0"),
+    motility: Array(5).fill("60"),
+    morph: Array(5).fill("14")
   },
   precisionLevel2: {
-    conc: Array(10).fill("20.0"),
-    motility: Array(10).fill("40"),
-    morph: Array(10).fill("10")
+    conc: Array(5).fill("20.0"),
+    motility: Array(5).fill("40"),
+    morph: Array(5).fill("10")
   },
   accuracy: {
     sqa: ["11.2", "51.7", "47.0", "63.0", "149.4"],
@@ -77,7 +77,7 @@ export const getTestData = (): SQAFormData => ({
     }
   },
   qc: {
-    level1: Array(10).fill("5.0"),
-    level2: Array(10).fill("25.0")
+    level1: Array(5).fill("5.0"),
+    level2: Array(5).fill("25.0")
   }
 });
