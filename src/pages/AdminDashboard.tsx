@@ -9,7 +9,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { Upload, Download } from "lucide-react";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Sheet,
   SheetContent,
@@ -40,6 +42,9 @@ interface Submission {
 }
 
 export function AdminDashboard() {
+  const { toast } = useToast();
+  const [isDownloading, setIsDownloading] = useState<string | null>(null);
+
   const { data: submissions, isLoading: isLoadingSubmissions } = useQuery({
     queryKey: ["submissions"],
     queryFn: async () => {
@@ -73,6 +78,40 @@ export function AdminDashboard() {
       return data as MasterTemplate[];
     },
   });
+
+  const handleDownload = async (filePath: string, fileName: string) => {
+    try {
+      setIsDownloading(filePath);
+      const { data, error } = await supabase.storage
+        .from("sqa_files")
+        .download(filePath);
+
+      if (error) throw error;
+
+      const url = window.URL.createObjectURL(data);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "File downloaded successfully",
+      });
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      toast({
+        title: "Error",
+        description: "Failed to download file",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloading(null);
+    }
+  };
 
   if (isLoadingSubmissions || isLoadingTemplates) {
     return <div className="p-8">Loading...</div>;
