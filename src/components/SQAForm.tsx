@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { WizardForm } from "./wizard/WizardForm";
-import { SQAFormData, GoogleScriptResponse } from "@/types/form";
-import { initialFormData, getTestData } from "@/utils/formUtils";
-import { generateExcelFile } from "@/utils/excelUtils";
+import { SQAFormData } from "@/types/form";
 import { supabase } from "@/integrations/supabase/client";
 
 export function SQAForm() {
@@ -44,23 +42,22 @@ export function SQAForm() {
     });
   };
 
-  const handleLoadTestData = () => {
-    setFormData(getTestData());
-    toast({
-      title: "Test Data Loaded",
-      description: "Sample data has been loaded into the form.",
-    });
-  };
-
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
     try {
-      // Generate Excel file
-      const excelBlob = generateExcelFile(formData);
-      const excelFile = new File([excelBlob], `${formData.facility}-${formData.date}.xlsx`, {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      });
+      // Get the latest master template
+      const { data: templates, error: templateError } = await supabase
+        .from('master_templates')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (templateError) throw templateError;
+      if (!templates || templates.length === 0) {
+        throw new Error('No active master template found');
+      }
 
       // Create submission record
       const { data: submissionData, error: submissionError } = await supabase
@@ -76,23 +73,19 @@ export function SQAForm() {
         .select()
         .single();
 
-      if (submissionError) {
-        throw new Error(`Failed to create submission: ${submissionError.message}`);
-      }
+      if (submissionError) throw submissionError;
 
-      // Upload Excel file
-      const formDataExcel = new FormData();
-      formDataExcel.append('file', excelFile);
-      formDataExcel.append('submissionId', submissionData.id);
-      formDataExcel.append('fileType', 'excel');
+      // Upload form data to be processed with the template
+      const formDataBody = new FormData();
+      formDataBody.append('submissionId', submissionData.id);
+      formDataBody.append('templateId', templates[0].id);
+      formDataBody.append('formData', JSON.stringify(formData));
 
-      const response = await supabase.functions.invoke('upload-file', {
-        body: formDataExcel
+      const response = await supabase.functions.invoke('process-submission', {
+        body: formDataBody
       });
 
-      if (response.error) {
-        throw new Error(`Failed to upload file: ${response.error.message}`);
-      }
+      if (response.error) throw response.error;
 
       toast({
         title: "Success!",
@@ -116,7 +109,6 @@ export function SQAForm() {
         formData={formData}
         handleInputChange={handleInputChange}
         onSubmit={handleSubmit}
-        onLoadTestData={handleLoadTestData}
         isSubmitting={isSubmitting}
       />
     </form>
