@@ -49,74 +49,70 @@ serve(async (req) => {
     const workbook = XLSX.read(await templateFile.arrayBuffer(), { type: 'array' })
     const worksheet = workbook.Sheets[workbook.SheetNames[0]]
 
-    // Write form data to specific ranges
-    // Facility info (B3:B6)
-    XLSX.utils.sheet_add_aoa(worksheet, [
-      [data.facility],
-      [data.date],
-      [data.technician],
-      [data.serialNumber]
-    ], { origin: 'B3' })
+    // Write form data to specific cells in the template
+    // Facility info
+    XLSX.utils.sheet_add_aoa(worksheet, [[data.facility]], { origin: 'B3' })
+    XLSX.utils.sheet_add_aoa(worksheet, [[data.date]], { origin: 'B4' })
+    XLSX.utils.sheet_add_aoa(worksheet, [[data.technician]], { origin: 'B5' })
+    XLSX.utils.sheet_add_aoa(worksheet, [[data.serialNumber]], { origin: 'B6' })
 
-    // Lower Limit Detection (B12:C16)
+    // Lower Limit Detection
     for (let i = 0; i < 5; i++) {
       XLSX.utils.sheet_add_aoa(worksheet, [[
-        data.lowerLimitDetection.conc[i] || '1',
-        data.lowerLimitDetection.msc[i] || '1'
+        data.lowerLimitDetection.conc[i],
+        data.lowerLimitDetection.msc[i]
       ]], { origin: `B${12 + i}` })
     }
 
-    // Precision Level 1 (B24:D28)
+    // Precision Level 1
     for (let i = 0; i < 5; i++) {
       XLSX.utils.sheet_add_aoa(worksheet, [[
-        data.precisionLevel1.conc[i] || '1',
-        data.precisionLevel1.motility[i] || '1',
-        data.precisionLevel1.morph[i] || '1'
+        data.precisionLevel1.conc[i],
+        data.precisionLevel1.motility[i],
+        data.precisionLevel1.morph[i]
       ]], { origin: `B${24 + i}` })
     }
 
-    // Precision Level 2 (B36:D40)
+    // Precision Level 2
     for (let i = 0; i < 5; i++) {
       XLSX.utils.sheet_add_aoa(worksheet, [[
-        data.precisionLevel2.conc[i] || '1',
-        data.precisionLevel2.motility[i] || '1',
-        data.precisionLevel2.morph[i] || '1'
+        data.precisionLevel2.conc[i],
+        data.precisionLevel2.motility[i],
+        data.precisionLevel2.morph[i]
       ]], { origin: `B${36 + i}` })
     }
 
-    // Accuracy (A48:F52)
+    // Accuracy data
     for (let i = 0; i < 5; i++) {
       XLSX.utils.sheet_add_aoa(worksheet, [[
-        i + 1,
-        data.accuracy.sqa[i] || '1',
-        data.accuracy.manual[i] || '1',
-        data.accuracy.sqaMotility[i] || '1',
-        data.accuracy.manualMotility[i] || '1',
-        data.accuracy.sqaMorph[i] || '1',
-        data.accuracy.manualMorph[i] || '1'
+        data.accuracy.sqa[i],
+        data.accuracy.manual[i],
+        data.accuracy.sqaMotility[i],
+        data.accuracy.manualMotility[i],
+        data.accuracy.sqaMorph[i],
+        data.accuracy.manualMorph[i]
       ]], { origin: `A${48 + i}` })
     }
 
-    // QC (B71:C75)
+    // QC data
     for (let i = 0; i < 5; i++) {
       XLSX.utils.sheet_add_aoa(worksheet, [[
-        data.qc.level1[i] || '1',
-        data.qc.level2[i] || '1'
+        data.qc.level1[i],
+        data.qc.level2[i]
       ]], { origin: `B${71 + i}` })
     }
 
-    // Generate the filled template
-    const filledTemplate = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' })
-
-    // Create a new filename for the filled template
+    // Generate filename based on the format you specified
     const dateStr = new Date(data.date).toISOString().split('T')[0]
-    const sanitizedFacility = data.facility.replace(/[^a-zA-Z0-9]/g, '_')
-    const fileName = `${dateStr}_${sanitizedFacility}_${data.serialNumber}.xlsx`
+    const fileName = `Salesforce account name – SN ${data.serialNumber} Precision Lower Limit Detection Study ${dateStr}.xlsx`
+
+    // Convert the workbook to a buffer
+    const excelBuffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' })
 
     // Upload the filled template
     const { error: uploadError } = await supabase.storage
       .from('sqa_files')
-      .upload(`submissions/${fileName}`, filledTemplate, {
+      .upload(`submissions/${fileName}`, excelBuffer, {
         contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         upsert: true
       })
@@ -131,7 +127,7 @@ serve(async (req) => {
         file_name: fileName,
         file_type: 'excel',
         file_path: `submissions/${fileName}`,
-        file_size: filledTemplate.length
+        file_size: excelBuffer.length
       })
 
     if (fileError) throw fileError
@@ -139,7 +135,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         message: 'Submission processed successfully',
-        fileName
+        fileName,
+        filePath: `submissions/${fileName}`
       }),
       { 
         headers: { 
