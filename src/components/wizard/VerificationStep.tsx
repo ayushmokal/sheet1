@@ -1,8 +1,8 @@
-import { FormData } from "@/types/form";
+import { SQAFormData } from "@/types/form";
 import { FormActions } from "../FormActions";
 
 export interface VerificationStepProps {
-  formData: FormData;
+  formData: SQAFormData;
   onSubmit: () => void;
   isSubmitting: boolean;
 }

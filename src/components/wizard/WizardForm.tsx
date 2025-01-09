@@ -7,10 +7,10 @@ import { PrecisionSection } from "../PrecisionSection";
 import { AccuracySection } from "../AccuracySection";
 import { QCSection } from "../QCSection";
 import { VerificationStep } from "./VerificationStep";
-import { FormData } from "@/types/form";
+import { SQAFormData } from "@/types/form";
 
 interface WizardFormProps {
-  formData: FormData;
+  formData: SQAFormData;
   handleInputChange: (section: string, field: string, value: string, index?: number) => void;
   onSubmit: () => void;
   onLoadTestData: () => void;
